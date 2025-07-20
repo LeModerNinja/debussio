@@ -69,7 +69,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Music className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-foreground">Classica</h1>
+              <h1 className="text-2xl font-bold text-foreground">DeBussio</h1>
             </div>
             
             <nav className="hidden md:flex items-center space-x-6">
@@ -269,7 +269,7 @@ const Index = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Music className="h-6 w-6" />
-                <h4 className="text-lg font-bold">Classica</h4>
+                <h4 className="text-lg font-bold">DeBussio</h4>
               </div>
               <p className="text-primary-foreground/80">Your classical music companion for discoveries, logging, and community.</p>
             </div>
@@ -306,7 +306,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-primary-foreground/60">
-            <p>&copy; 2024 Classica. Elevating classical music experiences.</p>
+            <p>&copy; 2024 DeBussio. Elevating classical music experiences.</p>
           </div>
         </div>
       </footer>
