@@ -14,16 +14,350 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      composers: {
+        Row: {
+          birth_year: number | null
+          created_at: string
+          death_year: number | null
+          id: string
+          name: string
+          nationality: string | null
+          period: string | null
+          updated_at: string
+        }
+        Insert: {
+          birth_year?: number | null
+          created_at?: string
+          death_year?: number | null
+          id?: string
+          name: string
+          nationality?: string | null
+          period?: string | null
+          updated_at?: string
+        }
+        Update: {
+          birth_year?: number | null
+          created_at?: string
+          death_year?: number | null
+          id?: string
+          name?: string
+          nationality?: string | null
+          period?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      concerts: {
+        Row: {
+          concert_date: string
+          conductor: string | null
+          created_at: string
+          id: string
+          location: string
+          orchestra: string | null
+          program: string | null
+          soloists: string | null
+          start_time: string | null
+          ticket_url: string | null
+          title: string
+          updated_at: string
+          venue: string
+        }
+        Insert: {
+          concert_date: string
+          conductor?: string | null
+          created_at?: string
+          id?: string
+          location: string
+          orchestra?: string | null
+          program?: string | null
+          soloists?: string | null
+          start_time?: string | null
+          ticket_url?: string | null
+          title: string
+          updated_at?: string
+          venue: string
+        }
+        Update: {
+          concert_date?: string
+          conductor?: string | null
+          created_at?: string
+          id?: string
+          location?: string
+          orchestra?: string | null
+          program?: string | null
+          soloists?: string | null
+          start_time?: string | null
+          ticket_url?: string | null
+          title?: string
+          updated_at?: string
+          venue?: string
+        }
+        Relationships: []
+      }
+      pieces: {
+        Row: {
+          catalog_number: string | null
+          composer_id: string
+          created_at: string
+          duration_minutes: number | null
+          genre: string | null
+          id: string
+          key_signature: string | null
+          opus_number: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          catalog_number?: string | null
+          composer_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          genre?: string | null
+          id?: string
+          key_signature?: string | null
+          opus_number?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          catalog_number?: string | null
+          composer_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          genre?: string | null
+          id?: string
+          key_signature?: string | null
+          opus_number?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pieces_composer_id_fkey"
+            columns: ["composer_id"]
+            isOneToOne: false
+            referencedRelation: "composers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          location: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          location?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          location?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recordings: {
+        Row: {
+          album_title: string | null
+          conductor: string | null
+          cover_image_url: string | null
+          created_at: string
+          id: string
+          label: string | null
+          orchestra: string | null
+          piece_id: string
+          release_year: number | null
+          soloists: string | null
+          updated_at: string
+        }
+        Insert: {
+          album_title?: string | null
+          conductor?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          orchestra?: string | null
+          piece_id: string
+          release_year?: number | null
+          soloists?: string | null
+          updated_at?: string
+        }
+        Update: {
+          album_title?: string | null
+          conductor?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          orchestra?: string | null
+          piece_id?: string
+          release_year?: number | null
+          soloists?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recordings_piece_id_fkey"
+            columns: ["piece_id"]
+            isOneToOne: false
+            referencedRelation: "pieces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_entries: {
+        Row: {
+          concert_id: string | null
+          created_at: string
+          entry_date: string
+          entry_type: Database["public"]["Enums"]["entry_type"]
+          id: string
+          notes: string | null
+          rating: number | null
+          recording_id: string | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          concert_id?: string | null
+          created_at?: string
+          entry_date?: string
+          entry_type: Database["public"]["Enums"]["entry_type"]
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          recording_id?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          concert_id?: string | null
+          created_at?: string
+          entry_date?: string
+          entry_type?: Database["public"]["Enums"]["entry_type"]
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          recording_id?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_entries_concert_id_fkey"
+            columns: ["concert_id"]
+            isOneToOne: false
+            referencedRelation: "concerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_entries_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_favorites: {
+        Row: {
+          concert_id: string | null
+          created_at: string
+          id: string
+          recording_id: string | null
+          user_id: string
+        }
+        Insert: {
+          concert_id?: string | null
+          created_at?: string
+          id?: string
+          recording_id?: string | null
+          user_id: string
+        }
+        Update: {
+          concert_id?: string | null
+          created_at?: string
+          id?: string
+          recording_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_concert_id_fkey"
+            columns: ["concert_id"]
+            isOneToOne: false
+            referencedRelation: "concerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      entry_type: "recording" | "concert"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +484,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      entry_type: ["recording", "concert"],
+    },
   },
 } as const
