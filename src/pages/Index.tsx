@@ -22,6 +22,9 @@ const Index = () => {
 
   // Function to handle test data generation with user feedback
   const handleGenerateTestData = async () => {
+    console.log('Test data generation button clicked');
+    console.log('User:', user);
+    
     if (!user) {
       toast.error("Please log in first to generate test data");
       return;
@@ -29,11 +32,13 @@ const Index = () => {
     
     try {
       toast.info("Generating test data...");
+      console.log('Starting test data generation...');
       await generateTestData();
       toast.success("Test data generated successfully! Check your Library page.");
+      console.log('Test data generation completed');
     } catch (error) {
       console.error('Error generating test data:', error);
-      toast.error("Failed to generate test data. Please try again.");
+      toast.error(`Failed to generate test data: ${error.message || 'Unknown error'}`);
     }
   };
   const featuredRecordings = [{
