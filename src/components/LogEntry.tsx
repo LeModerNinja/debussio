@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { X, Search, Music, Calendar, Loader2, ExternalLink, Star } from 'lucide-react';
+import { X, Search, Music, Calendar, Loader2, ExternalLink, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { StarRating } from '@/components/StarRating';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -29,6 +30,15 @@ interface LogEntryForm {
   rating: number;
   notes: string;
   tags: string;
+}
+
+interface DetailedRatings {
+  recordingQuality: number;
+  soloistPerformance: number;
+  conductorPerformance: number;
+  orchestraPerformance: number;
+  interpretation: number;
+  acoustics: number;
 }
 
 interface LogEntryProps {
@@ -60,6 +70,15 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [albumArt, setAlbumArt] = useState<AlbumArtResult | null>(null);
   const [loadingAlbumArt, setLoadingAlbumArt] = useState(false);
+  const [showDetailedRatings, setShowDetailedRatings] = useState(false);
+  const [detailedRatings, setDetailedRatings] = useState<DetailedRatings>({
+    recordingQuality: 3,
+    soloistPerformance: 3,
+    conductorPerformance: 3,
+    orchestraPerformance: 3,
+    interpretation: 3,
+    acoustics: 3,
+  });
 
   const {
     register,
@@ -708,27 +727,108 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
             )}
 
             {/* Rating */}
-            <div>
-              <Label htmlFor="rating">Rating</Label>
-              <Select value={watch('rating')?.toString()} onValueChange={(value) => setValue('rating', parseInt(value))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a rating" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <SelectItem key={rating} value={rating.toString()}>
-                      <div className="flex items-center gap-2">
-                        <div className="flex">
-                          {Array.from({ length: rating }).map((_, i) => (
-                            <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                        <span>{rating} star{rating !== 1 ? 's' : ''}</span>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="rating">Overall Rating</Label>
+                <div className="mt-2">
+                  <StarRating 
+                    rating={watch('rating')} 
+                    onRatingChange={(rating) => setValue('rating', rating)}
+                    size="lg"
+                  />
+                </div>
+              </div>
+
+              {/* Detailed Ratings Toggle */}
+              <div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDetailedRatings(!showDetailedRatings)}
+                  className="gap-2"
+                >
+                  {showDetailedRatings ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                  Detailed Ratings (Optional)
+                </Button>
+              </div>
+
+              {/* Detailed Ratings Section */}
+              {showDetailedRatings && (
+                <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
+                  <h4 className="font-medium text-sm text-muted-foreground">Rate specific aspects:</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Recording Quality (only for recordings) */}
+                    {type === 'recording' && (
+                      <div>
+                        <Label className="text-sm">Recording Quality</Label>
+                        <StarRating 
+                          rating={detailedRatings.recordingQuality}
+                          onRatingChange={(rating) => setDetailedRatings(prev => ({ ...prev, recordingQuality: rating }))}
+                          size="sm"
+                        />
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    )}
+
+                    {/* Acoustics (only for concerts) */}
+                    {type === 'concert' && (
+                      <div>
+                        <Label className="text-sm">Venue Acoustics</Label>
+                        <StarRating 
+                          rating={detailedRatings.acoustics}
+                          onRatingChange={(rating) => setDetailedRatings(prev => ({ ...prev, acoustics: rating }))}
+                          size="sm"
+                        />
+                      </div>
+                    )}
+
+                    {/* Soloist Performance */}
+                    <div>
+                      <Label className="text-sm">Soloist Performance</Label>
+                      <StarRating 
+                        rating={detailedRatings.soloistPerformance}
+                        onRatingChange={(rating) => setDetailedRatings(prev => ({ ...prev, soloistPerformance: rating }))}
+                        size="sm"
+                      />
+                    </div>
+
+                    {/* Conductor Performance */}
+                    <div>
+                      <Label className="text-sm">Conductor Performance</Label>
+                      <StarRating 
+                        rating={detailedRatings.conductorPerformance}
+                        onRatingChange={(rating) => setDetailedRatings(prev => ({ ...prev, conductorPerformance: rating }))}
+                        size="sm"
+                      />
+                    </div>
+
+                    {/* Orchestra Performance */}
+                    <div>
+                      <Label className="text-sm">Orchestra Performance</Label>
+                      <StarRating 
+                        rating={detailedRatings.orchestraPerformance}
+                        onRatingChange={(rating) => setDetailedRatings(prev => ({ ...prev, orchestraPerformance: rating }))}
+                        size="sm"
+                      />
+                    </div>
+
+                    {/* Interpretation */}
+                    <div>
+                      <Label className="text-sm">Musical Interpretation</Label>
+                      <StarRating 
+                        rating={detailedRatings.interpretation}
+                        onRatingChange={(rating) => setDetailedRatings(prev => ({ ...prev, interpretation: rating }))}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Notes */}
