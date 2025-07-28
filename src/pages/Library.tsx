@@ -3,19 +3,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
 import { LogEntry } from '@/components/LogEntry';
 import { EntryList } from '@/components/EntryList';
+import { LibrarySearch, LibrarySearchFilters } from '@/components/LibrarySearch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Music, Calendar, Star, Search, Filter, Grid3X3, List, BarChart3 } from 'lucide-react';
+import { Plus, Music, Calendar, Star, Filter, Grid3X3, List, BarChart3 } from 'lucide-react';
 
 export default function Library() {
   const { user } = useAuth();
   const [showLogEntry, setShowLogEntry] = useState(false);
   const [entryType, setEntryType] = useState<'recording' | 'concert'>('recording');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilters, setSearchFilters] = useState<LibrarySearchFilters>({});
 
   const handleNewEntry = (type: 'recording' | 'concert') => {
     setEntryType(type);
@@ -121,23 +121,16 @@ export default function Library() {
           </div>
         )}
 
+        {/* Search Component */}
+        <div className="mb-8">
+          <LibrarySearch onSearchChange={setSearchFilters} />
+        </div>
+
         {/* Controls Bar */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search your library..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          
           <div className="flex items-center gap-3">
             <Select defaultValue="recent">
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-40">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
@@ -188,11 +181,11 @@ export default function Library() {
           </TabsList>
 
           <TabsContent value="recordings" className="space-y-6">
-            <EntryList type="recording" />
+            <EntryList type="recording" searchFilters={searchFilters} />
           </TabsContent>
 
           <TabsContent value="concerts" className="space-y-6">
-            <EntryList type="concert" />
+            <EntryList type="concert" searchFilters={searchFilters} />
           </TabsContent>
 
           <TabsContent value="favorites" className="space-y-6">

@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Music, Calendar, Star, Edit, Trash2, ExternalLink, Clock, Building } from 'lucide-react';
 import { format } from 'date-fns';
+import { LibrarySearchFilters } from '@/components/LibrarySearch';
 
 interface UserEntry {
   id: string;
@@ -61,9 +62,10 @@ interface UserEntry {
 
 interface EntryListProps {
   type?: 'recording' | 'concert';
+  searchFilters?: LibrarySearchFilters;
 }
 
-export function EntryList({ type }: EntryListProps) {
+export function EntryList({ type, searchFilters = {} }: EntryListProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [entries, setEntries] = useState<UserEntry[]>([]);
@@ -73,7 +75,7 @@ export function EntryList({ type }: EntryListProps) {
     if (user) {
       fetchEntries();
     }
-  }, [user, type]);
+  }, [user, type, searchFilters]);
 
   const fetchEntries = async () => {
     if (!user) return;
@@ -146,7 +148,99 @@ export function EntryList({ type }: EntryListProps) {
         concert: entry.concerts || null
       })) || [];
 
-      setEntries(transformedEntries);
+      // Apply search filters
+      const filteredEntries = transformedEntries.filter(entry => {
+        // General search across all text fields
+        if (searchFilters.general) {
+          const searchText = searchFilters.general.toLowerCase();
+          const searchableText = [
+            entry.notes,
+            entry.recording?.piece?.title,
+            entry.recording?.piece?.composer?.name,
+            entry.recording?.orchestra,
+            entry.recording?.conductor,
+            entry.recording?.soloists,
+            entry.recording?.album_title,
+            entry.concert?.title,
+            entry.concert?.venue,
+            entry.concert?.location,
+            entry.concert?.orchestra,
+            entry.concert?.conductor,
+            entry.concert?.soloists,
+            entry.concert?.program
+          ].filter(Boolean).join(' ').toLowerCase();
+          
+          if (!searchableText.includes(searchText)) return false;
+        }
+
+        // Composer filter
+        if (searchFilters.composer && entry.recording?.piece?.composer?.name) {
+          if (!entry.recording.piece.composer.name.toLowerCase().includes(searchFilters.composer.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Piece title filter
+        if (searchFilters.pieceTitle) {
+          const pieceTitle = entry.recording?.piece?.title || entry.concert?.title || '';
+          if (!pieceTitle.toLowerCase().includes(searchFilters.pieceTitle.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Performer/Orchestra filter
+        if (searchFilters.performer) {
+          const performers = [
+            entry.recording?.orchestra,
+            entry.recording?.soloists,
+            entry.concert?.orchestra,
+            entry.concert?.soloists
+          ].filter(Boolean).join(' ').toLowerCase();
+          
+          if (!performers.includes(searchFilters.performer.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Conductor filter
+        if (searchFilters.conductor) {
+          const conductor = entry.recording?.conductor || entry.concert?.conductor || '';
+          if (!conductor.toLowerCase().includes(searchFilters.conductor.toLowerCase())) {
+            return false;
+          }
+        }
+
+        // Entry type filter
+        if (searchFilters.entryType && entry.entry_type !== searchFilters.entryType) {
+          return false;
+        }
+
+        // Rating filter
+        if (searchFilters.rating && entry.rating) {
+          const minRating = parseInt(searchFilters.rating);
+          if (entry.rating < minRating) {
+            return false;
+          }
+        }
+
+        // Genre filter
+        if (searchFilters.genre && entry.recording?.piece?.genre) {
+          if (entry.recording.piece.genre !== searchFilters.genre) {
+            return false;
+          }
+        }
+
+        // Period filter
+        if (searchFilters.period && entry.recording?.piece?.composer?.period) {
+          if (entry.recording.piece.composer.period !== searchFilters.period) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      setEntries(filteredEntries);
     } catch (error) {
       console.error('Error fetching entries:', error);
       toast({
