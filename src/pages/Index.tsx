@@ -66,43 +66,45 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-background">
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 overflow-hidden">
+      <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
             src={heroImage} 
             alt="Concert Hall" 
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover opacity-10"
           />
           <div className="absolute inset-0 bg-gradient-hero"></div>
         </div>
         
-        <div className="container mx-auto relative z-10 text-center">
-          <h2 className="text-5xl md:text-7xl font-bold text-foreground mb-6">
+        <div className="content-container relative z-10 text-center">
+          <h1 className="text-display mb-8">
             Your Classical Music
-            <span className="block text-primary">Journey</span>
-          </h2>
-          <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Discover, log, and share your classical music experiences. From recordings to concerts, 
-            build your musical story with fellow enthusiasts.
+            <span className="block bg-gradient-primary bg-clip-text text-transparent">
+              Journey Awaits
+            </span>
+          </h1>
+          <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+            Discover, log, and share your classical music experiences. From intimate chamber recordings 
+            to grand symphonic concerts — build your musical story with a passionate community.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <div className="relative w-full max-w-lg">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
               <Input
                 type="text"
                 placeholder="Search composers, pieces, conductors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 bg-card/80 backdrop-blur-sm border-border"
+                className="pl-12 h-14 text-lg glass-card border-border/30"
               />
             </div>
-            <Button variant="hero" size="lg" className="whitespace-nowrap">
-              <Search className="h-4 w-4 mr-2" />
+            <Button variant="hero" size="lg" className="h-14 px-8 text-lg whitespace-nowrap">
+              <Search className="h-5 w-5 mr-3" />
               Explore Music
             </Button>
           </div>
@@ -110,32 +112,32 @@ const Index = () => {
           <div className="flex flex-wrap justify-center gap-4">
             {user ? (
               <>
-                <Button variant="elegant" size="lg" asChild>
+                <Button variant="elegant" size="lg" asChild className="hover-lift">
                   <Link to="/library">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Log a Recording
+                    <Plus className="h-5 w-5 mr-3" />
+                    Log Your First Recording
                   </Link>
                 </Button>
-                <Button variant="elegant" size="lg">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Find Concerts
+                <Button variant="outline" size="lg" className="hover-lift">
+                  <Calendar className="h-5 w-5 mr-3" />
+                  Discover Concerts
                 </Button>
-                <Button variant="elegant" size="lg">
-                  <Users className="h-4 w-4 mr-2" />
-                  Community
+                <Button variant="outline" size="lg" className="hover-lift">
+                  <Users className="h-5 w-5 mr-3" />
+                  Join Community
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="elegant" size="lg" asChild>
+                <Button className="btn-primary-gradient" size="lg" asChild>
                   <Link to="/auth">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Get Started
+                    <Plus className="h-5 w-5 mr-3" />
+                    Start Your Journey
                   </Link>
                 </Button>
-                <Button variant="elegant" size="lg" asChild>
+                <Button variant="outline" size="lg" asChild className="hover-lift">
                   <Link to="/auth">
-                    <Calendar className="h-4 w-4 mr-2" />
+                    <Heart className="h-5 w-5 mr-3" />
                     Join DeBussio
                   </Link>
                 </Button>
