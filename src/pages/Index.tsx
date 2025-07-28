@@ -74,54 +74,42 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-0 px-4 overflow-hidden min-h-[80vh] flex items-end">
-        {/* Background Image with Fade */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={conductorBackground} 
-            alt="Conductor conducting orchestra" 
-            className="w-full h-full object-cover object-center"
-            style={{ filter: 'brightness(0.4) contrast(1.2)' }}
-          />
-          {/* Gradient overlay for fade effect */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background"></div>
-        </div>
-        
-        <div className="content-container relative z-10 text-center w-full pb-24">
+      <section className="relative py-24 px-4 overflow-hidden min-h-[70vh] flex items-center">
+        <div className="content-container relative z-10 text-center w-full">
           {/* Elegant Separator Line */}
-          <div className="w-24 h-px bg-primary/30 mx-auto mb-8"></div>
+          <div className="w-24 h-px bg-primary/30 mx-auto mb-12"></div>
           
           {/* Updated Title - More Eloquent with Full Stops */}
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-relaxed mb-6 max-w-4xl mx-auto text-white">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-relaxed mb-8 max-w-4xl mx-auto">
             Chronicle your musical encounters and cherished recordings.
           </h1>
           
           {/* Elegant Separator */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-px bg-white/20"></div>
-            <div className="w-2 h-2 rounded-full bg-white/30 mx-4"></div>
-            <div className="w-16 h-px bg-white/20"></div>
+          <div className="flex items-center justify-center mb-8">
+            <div className="w-16 h-px bg-muted-foreground/20"></div>
+            <div className="w-2 h-2 rounded-full bg-muted-foreground/30 mx-4"></div>
+            <div className="w-16 h-px bg-muted-foreground/20"></div>
           </div>
           
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed mb-6 max-w-4xl mx-auto text-white/90">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed mb-8 max-w-4xl mx-auto">
             Discover extraordinary performances in your vicinity.
           </h2>
           
           {/* Elegant Separator */}
           <div className="flex items-center justify-center mb-8">
-            <div className="w-12 h-px bg-white/15"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-white/25 mx-3"></div>
-            <div className="w-12 h-px bg-white/15"></div>
+            <div className="w-12 h-px bg-muted-foreground/15"></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/25 mx-3"></div>
+            <div className="w-12 h-px bg-muted-foreground/15"></div>
           </div>
           
-          <h3 className="text-lg md:text-xl lg:text-2xl font-medium leading-relaxed mb-12 max-w-4xl mx-auto text-white/80">
+          <h3 className="text-lg md:text-xl lg:text-2xl font-medium leading-relaxed mb-12 max-w-4xl mx-auto">
             Unite with fellow musicians and create harmonious ensembles.
           </h3>
           
           {/* Elegant Bottom Separator */}
-          <div className="w-32 h-px bg-white/20 mx-auto mb-8"></div>
+          <div className="w-32 h-px bg-muted-foreground/20 mx-auto mb-8"></div>
           
-          <p className="text-sm italic opacity-60 mb-16 text-white/70">
+          <p className="text-sm italic opacity-60 mb-16">
             DeBussio is fully open source and free to use.
           </p>
           
