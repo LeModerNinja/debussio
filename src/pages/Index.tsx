@@ -11,9 +11,8 @@ import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filt
 import heroImage from "@/assets/hero-concert-hall.jpg";
 
 const Index = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchFilters, setSearchFilters] = useState<LibrarySearchFilters>({});
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showLogRecording, setShowLogRecording] = useState(false);
+  const [showLogConcert, setShowLogConcert] = useState(false);
   const { user } = useAuth();
 
   const featuredRecordings = [
@@ -68,11 +67,6 @@ const Index = () => {
     }
   ];
 
-  const handleSearchFilter = (filters: LibrarySearchFilters) => {
-    setSearchFilters(filters);
-    // TODO: Implement actual search logic with filters
-    console.log('Search filters:', filters);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,101 +84,92 @@ const Index = () => {
         </div>
         
         <div className="content-container relative z-10 text-center">
-          <h1 className="text-display mb-8">
-            Your Classical Music
-            <span className="block bg-gradient-primary bg-clip-text text-transparent">
-              Journey Awaits
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
+            Log your recent concerts or favourite recordings.
+            <br />
+            <span className="text-3xl md:text-4xl font-normal opacity-90">
+              Find your next concert in your area.
+            </span>
+            <br />
+            <span className="text-2xl md:text-3xl font-normal opacity-80">
+              Connect with like minded people and play in ensembles.
             </span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-            Discover, log, and share your classical music experiences. From intimate chamber recordings 
-            to grand symphonic concerts — build your musical story with a passionate community.
+          
+          <p className="text-sm italic opacity-75 mb-12">
+            DeBussio is fully open source and free to use
           </p>
           
-          {/* Enhanced Search Section */}
-          <div className="w-full max-w-4xl mx-auto space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <div className="relative w-full max-w-lg">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search composers, pieces, conductors..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 text-lg glass-card border-border/30"
-                />
-              </div>
-              <Button variant="hero" size="lg" className="h-14 px-8 text-lg whitespace-nowrap">
-                <Search className="h-5 w-5 mr-3" />
-                Explore Music
+          {/* Logging Actions */}
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="h-14 px-8 text-lg"
+                onClick={() => setShowLogRecording(!showLogRecording)}
+              >
+                <Music className="h-6 w-6 mr-3" />
+                Log Recording
               </Button>
               <Button 
-                variant="outline" 
+                variant="elegant" 
                 size="lg" 
-                className="h-14 px-6 gap-2"
-                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                className="h-14 px-8 text-lg"
+                onClick={() => setShowLogConcert(!showLogConcert)}
               >
-                <Filter className="h-5 w-5" />
-                Advanced
+                <Calendar className="h-6 w-6 mr-3" />
+                Log Concert
               </Button>
             </div>
 
-            {/* Advanced Search */}
-            {showAdvancedSearch && (
-              <div className="w-full space-y-4">
-                <LibrarySearch onSearchChange={handleSearchFilter} />
-                <div className="flex justify-center">
-                  <Button 
-                    variant="default" 
-                    size="lg" 
-                    className="h-12 px-8"
-                    onClick={() => {
-                      // TODO: Implement actual search logic with filters and query
-                      console.log('Executing search with:', { query: searchQuery, filters: searchFilters });
-                    }}
-                  >
-                    <Search className="h-5 w-5 mr-2" />
-                    Search
-                  </Button>
+            {/* Log Recording Interface */}
+            {showLogRecording && (
+              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
+                <h3 className="text-xl font-semibold">Log a Recording</h3>
+                <div className="space-y-4">
+                  <Input placeholder="Composer (e.g., Bach, Mozart)" />
+                  <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" />
+                  <Input placeholder="Performer/Orchestra" />
+                  <Input placeholder="Conductor" />
+                  <div className="flex gap-4">
+                    <Button variant="default">Save Recording</Button>
+                    <Button variant="outline" onClick={() => setShowLogRecording(false)}>Cancel</Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Log Concert Interface */}
+            {showLogConcert && (
+              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
+                <h3 className="text-xl font-semibold">Log a Concert</h3>
+                <div className="space-y-4">
+                  <Input placeholder="Concert/Performance Title" />
+                  <Input placeholder="Venue" />
+                  <Input placeholder="Date" type="date" />
+                  <Input placeholder="Orchestra/Ensemble" />
+                  <Input placeholder="Conductor" />
+                  <Input placeholder="Program/Pieces Performed" />
+                  <div className="flex gap-4">
+                    <Button variant="default">Save Concert</Button>
+                    <Button variant="outline" onClick={() => setShowLogConcert(false)}>Cancel</Button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 mt-16">
-            {user ? (
-              <>
-                <Button variant="elegant" size="lg" asChild className="hover-lift">
-                  <Link to="/library">
-                    <Plus className="h-5 w-5 mr-3" />
-                    Log Your First Recording
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" className="hover-lift">
-                  <Calendar className="h-5 w-5 mr-3" />
-                  Discover Concerts
-                </Button>
-                <Button variant="outline" size="lg" className="hover-lift">
-                  <Users className="h-5 w-5 mr-3" />
-                  Join Community
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button className="btn-primary-gradient" size="lg" asChild>
-                  <Link to="/auth">
-                    <Plus className="h-5 w-5 mr-3" />
-                    Start Your Journey
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild className="hover-lift">
-                  <Link to="/auth">
-                    <Heart className="h-5 w-5 mr-3" />
-                    Join DeBussio
-                  </Link>
-                </Button>
-              </>
-            )}
+          {/* Main Action Buttons - More Prominent */}
+          <div className="flex flex-wrap justify-center gap-6 mt-16">
+            <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
+              <Calendar className="h-6 w-6 mr-3" />
+              Discover Concerts
+            </Button>
+            <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
+              <Users className="h-6 w-6 mr-3" />
+              Join Community
+            </Button>
           </div>
         </div>
       </section>
