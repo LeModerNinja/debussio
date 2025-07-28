@@ -191,6 +191,7 @@ export type Database = {
         Row: {
           album_title: string | null
           conductor: string | null
+          cover_art_sources: Json | null
           cover_image_url: string | null
           created_at: string
           external_urls: Json | null
@@ -208,6 +209,7 @@ export type Database = {
         Insert: {
           album_title?: string | null
           conductor?: string | null
+          cover_art_sources?: Json | null
           cover_image_url?: string | null
           created_at?: string
           external_urls?: Json | null
@@ -225,6 +227,7 @@ export type Database = {
         Update: {
           album_title?: string | null
           conductor?: string | null
+          cover_art_sources?: Json | null
           cover_image_url?: string | null
           created_at?: string
           external_urls?: Json | null

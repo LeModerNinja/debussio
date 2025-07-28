@@ -188,6 +188,7 @@ class MusicBrainzService {
       releaseTitle: mainRelease?.title,
       releaseDate: mainRelease?.date,
       label: label,
+      releaseId: mainRelease?.id, // Add release ID for album art fetching
     };
   }
 

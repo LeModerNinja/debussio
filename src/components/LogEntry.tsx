@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { musicBrainzService, type MusicBrainzRecording } from '@/services/musicBrainzService';
+import { albumArtService, type AlbumArtResult } from '@/services/albumArtService';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +44,7 @@ interface MusicBrainzSearchResult {
   releaseDate?: string;
   label?: string;
   duration?: number;
+  releaseId?: string; // For fetching album art
 }
 
 export function LogEntry({ type, onClose }: LogEntryProps) {
@@ -56,6 +58,8 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
   const [selectedRecording, setSelectedRecording] = useState<MusicBrainzSearchResult | null>(null);
   const [suggestions, setSuggestions] = useState<MusicBrainzSearchResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [albumArt, setAlbumArt] = useState<AlbumArtResult | null>(null);
+  const [loadingAlbumArt, setLoadingAlbumArt] = useState(false);
 
   const {
     register,
@@ -110,6 +114,7 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
           releaseDate: extractedInfo.releaseDate,
           label: extractedInfo.label,
           duration: extractedInfo.duration,
+          releaseId: extractedInfo.releaseId,
         };
       });
   };
@@ -170,6 +175,23 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
     }
   };
 
+  // Fetch album art for selected recording
+  const fetchAlbumArt = useCallback(async (recording: MusicBrainzSearchResult) => {
+    setLoadingAlbumArt(true);
+    try {
+      const artResult = await albumArtService.searchAlbumArt(
+        recording.releaseTitle || recording.title,
+        recording.artists[0],
+        recording.releaseId // This will be added to the interface
+      );
+      setAlbumArt(artResult);
+    } catch (error) {
+      console.error('Error fetching album art:', error);
+    } finally {
+      setLoadingAlbumArt(false);
+    }
+  }, []);
+
   // Select a recording from MusicBrainz results
   const selectRecording = (recording: MusicBrainzSearchResult) => {
     setSelectedRecording(recording);
@@ -179,6 +201,9 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
     setSearchQuery(recording.title);
     setShowMusicBrainzSearch(false);
     setShowSuggestions(false);
+    
+    // Fetch album art for this recording
+    fetchAlbumArt(recording);
     
     toast({
       title: "Recording Selected",
@@ -270,13 +295,16 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
 
         // Finally create recording
         if (pieceId) {
-          const recordingData = {
-            piece_id: pieceId,
-            conductor: data.conductor || null,
-            orchestra: data.orchestra || null,
-            soloists: data.soloists || null,
-            musicbrainz_id: selectedRecording?.id || null,
-          };
+            const recordingData = {
+              piece_id: pieceId,
+              conductor: data.conductor || null,
+              orchestra: data.orchestra || null,
+              soloists: data.soloists || null,
+              musicbrainz_id: selectedRecording?.id || null,
+              cover_art_sources: albumArt ? {
+                [albumArt.source]: albumArt.url
+              } : {},
+            };
 
           const { data: recording, error: recordingError } = await supabase
             .from('recordings')
@@ -430,9 +458,42 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
               {/* Selected Recording Display */}
               {selectedRecording && (
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-medium text-sm">Selected from MusicBrainz:</h4>
+                  <div className="flex items-start gap-4">
+                    {/* Album Art */}
+                    <div className="flex-shrink-0">
+                      {loadingAlbumArt ? (
+                        <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center">
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : albumArt ? (
+                        <div className="relative group">
+                          <img 
+                            src={albumArt.url} 
+                            alt="Album cover"
+                            className="w-20 h-20 object-cover rounded-md border"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-md flex items-center justify-center">
+                            <Badge 
+                              variant="secondary" 
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                            >
+                              {albumArt.source}
+                            </Badge>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center">
+                          <Music className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Recording Info */}
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm text-muted-foreground">Selected from MusicBrainz:</h4>
                       <p className="font-semibold">{selectedRecording.title}</p>
                       <p className="text-sm text-muted-foreground">
                         by {selectedRecording.artists.join(', ')}
@@ -443,7 +504,8 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
                         </p>
                       )}
                     </div>
-                    <Badge variant="secondary" className="gap-1">
+                    
+                    <Badge variant="secondary" className="gap-1 self-start">
                       <ExternalLink className="h-3 w-3" />
                       MusicBrainz
                     </Badge>
