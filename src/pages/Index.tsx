@@ -73,58 +73,41 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-24 px-4 overflow-hidden min-h-[80vh] flex items-center">
-        {/* Background Images */}
-        <div className="absolute inset-0 z-0">
-          {/* Conductor Image with Fade */}
-          <div className="absolute inset-0">
-            <img 
-              src={conductorImage} 
-              alt="Conductor" 
-              className="w-full h-full object-cover object-center"
-            />
-            {/* Gradient overlay for fade effect */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40"></div>
-          </div>
-        </div>
-        
+      <section className="relative py-24 px-4 overflow-hidden min-h-[70vh] flex items-center">
         <div className="content-container relative z-10 text-center w-full">
-          {/* Updated Title - All Same Size */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 max-w-5xl mx-auto">
-            Log your recent concerts or favourite recordings.
+          {/* Updated Title - Single Lines, Smaller, Title Case */}
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-relaxed mb-8 max-w-4xl mx-auto">
+            Log Your Recent Concerts Or Favourite Recordings
             <br />
-            Find your next concert in your area.
+            Find Your Next Concert In Your Area
             <br />
-            Connect with like minded people and play in ensembles.
+            Connect With Like Minded People And Play In Ensembles
           </h1>
           
           <p className="text-sm italic opacity-75 mb-16">
             DeBussio is fully open source and free to use
           </p>
           
-          {/* Unified Log Buttons - Bigger and Connected */}
-          <div className="max-w-3xl mx-auto space-y-8">
-            <div className="flex flex-col lg:flex-row justify-center">
-              {/* Connected Log Buttons Container */}
-              <div className="relative bg-card/90 backdrop-blur-sm rounded-2xl border border-border/50 shadow-elegant overflow-hidden">
-                <div className="flex flex-col lg:flex-row">
-                  {/* Log Recording Button */}
+          {/* Unified Two-Sided Button */}
+          <div className="max-w-2xl mx-auto space-y-8">
+            <div className="flex justify-center">
+              {/* Single Button with Two Colored Sides */}
+              <div className="relative overflow-hidden rounded-2xl shadow-elegant border border-border/20">
+                <div className="flex">
+                  {/* Left Side - Brown (Log Recording) */}
                   <Button 
                     variant="ghost"
-                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105 group relative lg:border-r border-border/30"
+                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 bg-amber-800 text-white hover:bg-amber-700 transition-all duration-300 hover:scale-105 group"
                     onClick={() => setShowLogRecording(!showLogRecording)}
                   >
                     <Music className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
                     Log Recording
                   </Button>
                   
-                  {/* Separator Line */}
-                  <div className="lg:hidden h-px bg-border/30 mx-6"></div>
-                  
-                  {/* Log Concert Button */}
+                  {/* Right Side - White (Log Concert) */}
                   <Button 
                     variant="ghost"
-                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105 group"
+                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 bg-white text-gray-900 hover:bg-gray-50 transition-all duration-300 hover:scale-105 group border-l border-border/30"
                     onClick={() => setShowLogConcert(!showLogConcert)}
                   >
                     <Calendar className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
