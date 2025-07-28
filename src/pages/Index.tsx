@@ -131,8 +131,22 @@ const Index = () => {
 
             {/* Advanced Search */}
             {showAdvancedSearch && (
-              <div className="w-full">
+              <div className="w-full space-y-4">
                 <LibrarySearch onSearchChange={handleSearchFilter} />
+                <div className="flex justify-center">
+                  <Button 
+                    variant="default" 
+                    size="lg" 
+                    className="h-12 px-8"
+                    onClick={() => {
+                      // TODO: Implement actual search logic with filters and query
+                      console.log('Executing search with:', { query: searchQuery, filters: searchFilters });
+                    }}
+                  >
+                    <Search className="h-5 w-5 mr-2" />
+                    Search
+                  </Button>
+                </div>
               </div>
             )}
           </div>
