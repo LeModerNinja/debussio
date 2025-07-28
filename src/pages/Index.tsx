@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter } from "lucide-react";
 import heroImage from "@/assets/hero-concert-hall.jpg";
+import conductorImage from "@/assets/conductor-hero.jpg";
 
 const Index = () => {
   const [showLogRecording, setShowLogRecording] = useState(false);
@@ -72,68 +73,79 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-24 px-4 overflow-hidden">
+      <section className="relative py-24 px-4 overflow-hidden min-h-[80vh] flex items-center">
+        {/* Background Images */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage} 
-            alt="Concert Hall" 
-            className="w-full h-full object-cover opacity-10"
-          />
-          <div className="absolute inset-0 bg-gradient-hero"></div>
+          {/* Conductor Image with Fade */}
+          <div className="absolute inset-0">
+            <img 
+              src={conductorImage} 
+              alt="Conductor" 
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Gradient overlay for fade effect */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40"></div>
+          </div>
         </div>
         
-        <div className="content-container relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
+        <div className="content-container relative z-10 text-center w-full">
+          {/* Updated Title - All Same Size */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 max-w-5xl mx-auto">
             Log your recent concerts or favourite recordings.
             <br />
-            <span className="text-3xl md:text-4xl font-normal opacity-90">
-              Find your next concert in your area.
-            </span>
+            Find your next concert in your area.
             <br />
-            <span className="text-2xl md:text-3xl font-normal opacity-80">
-              Connect with like minded people and play in ensembles.
-            </span>
+            Connect with like minded people and play in ensembles.
           </h1>
           
-          <p className="text-sm italic opacity-75 mb-12">
+          <p className="text-sm italic opacity-75 mb-16">
             DeBussio is fully open source and free to use
           </p>
           
-          {/* Logging Actions */}
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                variant="hero" 
-                size="lg" 
-                className="h-14 px-8 text-lg"
-                onClick={() => setShowLogRecording(!showLogRecording)}
-              >
-                <Music className="h-6 w-6 mr-3" />
-                Log Recording
-              </Button>
-              <Button 
-                variant="elegant" 
-                size="lg" 
-                className="h-14 px-8 text-lg"
-                onClick={() => setShowLogConcert(!showLogConcert)}
-              >
-                <Calendar className="h-6 w-6 mr-3" />
-                Log Concert
-              </Button>
+          {/* Unified Log Buttons - Bigger and Connected */}
+          <div className="max-w-3xl mx-auto space-y-8">
+            <div className="flex flex-col lg:flex-row justify-center">
+              {/* Connected Log Buttons Container */}
+              <div className="relative bg-card/90 backdrop-blur-sm rounded-2xl border border-border/50 shadow-elegant overflow-hidden">
+                <div className="flex flex-col lg:flex-row">
+                  {/* Log Recording Button */}
+                  <Button 
+                    variant="ghost"
+                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105 group relative lg:border-r border-border/30"
+                    onClick={() => setShowLogRecording(!showLogRecording)}
+                  >
+                    <Music className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
+                    Log Recording
+                  </Button>
+                  
+                  {/* Separator Line */}
+                  <div className="lg:hidden h-px bg-border/30 mx-6"></div>
+                  
+                  {/* Log Concert Button */}
+                  <Button 
+                    variant="ghost"
+                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105 group"
+                    onClick={() => setShowLogConcert(!showLogConcert)}
+                  >
+                    <Calendar className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
+                    Log Concert
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Log Recording Interface */}
             {showLogRecording && (
-              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
-                <h3 className="text-xl font-semibold">Log a Recording</h3>
+              <div className="w-full p-8 bg-card/95 backdrop-blur-sm rounded-xl border border-border/50 space-y-4 animate-fade-in">
+                <h3 className="text-2xl font-semibold">Log a Recording</h3>
                 <div className="space-y-4">
-                  <Input placeholder="Composer (e.g., Bach, Mozart)" />
-                  <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" />
-                  <Input placeholder="Performer/Orchestra" />
-                  <Input placeholder="Conductor" />
-                  <div className="flex gap-4">
-                    <Button variant="default">Save Recording</Button>
-                    <Button variant="outline" onClick={() => setShowLogRecording(false)}>Cancel</Button>
+                  <Input placeholder="Composer (e.g., Bach, Mozart)" className="h-12 text-lg" />
+                  <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" className="h-12 text-lg" />
+                  <Input placeholder="Performer/Orchestra" className="h-12 text-lg" />
+                  <Input placeholder="Conductor" className="h-12 text-lg" />
+                  <div className="flex gap-4 pt-4">
+                    <Button variant="default" size="lg" className="h-12 px-8">Save Recording</Button>
+                    <Button variant="outline" size="lg" className="h-12 px-8" onClick={() => setShowLogRecording(false)}>Cancel</Button>
                   </div>
                 </div>
               </div>
@@ -141,32 +153,32 @@ const Index = () => {
 
             {/* Log Concert Interface */}
             {showLogConcert && (
-              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
-                <h3 className="text-xl font-semibold">Log a Concert</h3>
+              <div className="w-full p-8 bg-card/95 backdrop-blur-sm rounded-xl border border-border/50 space-y-4 animate-fade-in">
+                <h3 className="text-2xl font-semibold">Log a Concert</h3>
                 <div className="space-y-4">
-                  <Input placeholder="Concert/Performance Title" />
-                  <Input placeholder="Venue" />
-                  <Input placeholder="Date" type="date" />
-                  <Input placeholder="Orchestra/Ensemble" />
-                  <Input placeholder="Conductor" />
-                  <Input placeholder="Program/Pieces Performed" />
-                  <div className="flex gap-4">
-                    <Button variant="default">Save Concert</Button>
-                    <Button variant="outline" onClick={() => setShowLogConcert(false)}>Cancel</Button>
+                  <Input placeholder="Concert/Performance Title" className="h-12 text-lg" />
+                  <Input placeholder="Venue" className="h-12 text-lg" />
+                  <Input placeholder="Date" type="date" className="h-12 text-lg" />
+                  <Input placeholder="Orchestra/Ensemble" className="h-12 text-lg" />
+                  <Input placeholder="Conductor" className="h-12 text-lg" />
+                  <Input placeholder="Program/Pieces Performed" className="h-12 text-lg" />
+                  <div className="flex gap-4 pt-4">
+                    <Button variant="default" size="lg" className="h-12 px-8">Save Concert</Button>
+                    <Button variant="outline" size="lg" className="h-12 px-8" onClick={() => setShowLogConcert(false)}>Cancel</Button>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Main Action Buttons - More Prominent */}
-          <div className="flex flex-wrap justify-center gap-6 mt-16">
-            <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
-              <Calendar className="h-6 w-6 mr-3" />
+          {/* Secondary Action Buttons - Smaller with Different Color Scheme */}
+          <div className="flex flex-wrap justify-center gap-4 mt-20">
+            <Button variant="outline" size="default" className="h-12 px-6 text-base border-muted-foreground/30 hover:border-muted-foreground hover:bg-muted/50">
+              <Calendar className="h-5 w-5 mr-2" />
               Discover Concerts
             </Button>
-            <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
-              <Users className="h-6 w-6 mr-3" />
+            <Button variant="secondary" size="default" className="h-12 px-6 text-base">
+              <Users className="h-5 w-5 mr-2" />
               Join Community
             </Button>
           </div>
