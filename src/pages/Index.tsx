@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
-import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter } from "lucide-react";
+import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter, Database } from "lucide-react";
+import { generateTestData } from '@/utils/testDataGenerator';
+import { toast } from "sonner";
 import heroImage from "@/assets/hero-concert-hall.jpg";
 const Index = () => {
   const [showLogRecording, setShowLogRecording] = useState(false);
@@ -17,6 +19,23 @@ const Index = () => {
   const {
     user
   } = useAuth();
+
+  // Function to handle test data generation with user feedback
+  const handleGenerateTestData = async () => {
+    if (!user) {
+      toast.error("Please log in first to generate test data");
+      return;
+    }
+    
+    try {
+      toast.info("Generating test data...");
+      await generateTestData();
+      toast.success("Test data generated successfully! Check your Library page.");
+    } catch (error) {
+      console.error('Error generating test data:', error);
+      toast.error("Failed to generate test data. Please try again.");
+    }
+  };
   const featuredRecordings = [{
     id: 1,
     title: "Symphony No. 9 in D minor",
@@ -144,6 +163,24 @@ const Index = () => {
                 />
               </DialogContent>
             </Dialog>
+
+            {/* Test Data Generation Button (Development Only) */}
+            {user && (
+              <div className="mt-6 p-4 border rounded-lg bg-muted/20">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Development Tool: Generate sample data for testing
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleGenerateTestData}
+                  className="text-sm"
+                >
+                  <Database className="h-4 w-4 mr-2" />
+                  Generate Test Data
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Main Action Buttons - More Prominent */}
