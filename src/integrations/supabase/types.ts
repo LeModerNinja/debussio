@@ -52,12 +52,16 @@ export type Database = {
           concert_date: string
           conductor: string | null
           created_at: string
+          external_event_id: string | null
           id: string
           location: string
           orchestra: string | null
+          price_range: string | null
           program: string | null
           soloists: string | null
+          source: string | null
           start_time: string | null
+          tags: string[] | null
           ticket_url: string | null
           title: string
           updated_at: string
@@ -67,12 +71,16 @@ export type Database = {
           concert_date: string
           conductor?: string | null
           created_at?: string
+          external_event_id?: string | null
           id?: string
           location: string
           orchestra?: string | null
+          price_range?: string | null
           program?: string | null
           soloists?: string | null
+          source?: string | null
           start_time?: string | null
+          tags?: string[] | null
           ticket_url?: string | null
           title: string
           updated_at?: string
@@ -82,12 +90,16 @@ export type Database = {
           concert_date?: string
           conductor?: string | null
           created_at?: string
+          external_event_id?: string | null
           id?: string
           location?: string
           orchestra?: string | null
+          price_range?: string | null
           program?: string | null
           soloists?: string | null
+          source?: string | null
           start_time?: string | null
+          tags?: string[] | null
           ticket_url?: string | null
           title?: string
           updated_at?: string
@@ -181,12 +193,16 @@ export type Database = {
           conductor: string | null
           cover_image_url: string | null
           created_at: string
+          external_urls: Json | null
           id: string
           label: string | null
+          musicbrainz_id: string | null
           orchestra: string | null
           piece_id: string
+          popularity_score: number | null
           release_year: number | null
           soloists: string | null
+          spotify_id: string | null
           updated_at: string
         }
         Insert: {
@@ -194,12 +210,16 @@ export type Database = {
           conductor?: string | null
           cover_image_url?: string | null
           created_at?: string
+          external_urls?: Json | null
           id?: string
           label?: string | null
+          musicbrainz_id?: string | null
           orchestra?: string | null
           piece_id: string
+          popularity_score?: number | null
           release_year?: number | null
           soloists?: string | null
+          spotify_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -207,12 +227,16 @@ export type Database = {
           conductor?: string | null
           cover_image_url?: string | null
           created_at?: string
+          external_urls?: Json | null
           id?: string
           label?: string | null
+          musicbrainz_id?: string | null
           orchestra?: string | null
           piece_id?: string
+          popularity_score?: number | null
           release_year?: number | null
           soloists?: string | null
+          spotify_id?: string | null
           updated_at?: string
         }
         Relationships: [
