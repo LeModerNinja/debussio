@@ -8,85 +8,70 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter } from "lucide-react";
 import heroImage from "@/assets/hero-concert-hall.jpg";
-
 const Index = () => {
   const [showLogRecording, setShowLogRecording] = useState(false);
   const [showLogConcert, setShowLogConcert] = useState(false);
-  const { user } = useAuth();
-
-  const featuredRecordings = [
-    {
-      id: 1,
-      title: "Symphony No. 9 in D minor",
-      composer: "Ludwig van Beethoven",
-      conductor: "Herbert von Karajan",
-      orchestra: "Berlin Philharmonic",
-      year: "1962",
-      rating: 4.8,
-      reviews: 1247
-    },
-    {
-      id: 2,
-      title: "Piano Concerto No. 1 in B-flat minor",
-      composer: "Pyotr Ilyich Tchaikovsky",
-      conductor: "Claudio Abbado",
-      orchestra: "Vienna Philharmonic",
-      year: "1989",
-      rating: 4.7,
-      reviews: 892
-    },
-    {
-      id: 3,
-      title: "The Four Seasons",
-      composer: "Antonio Vivaldi",
-      conductor: "Nigel Kennedy",
-      orchestra: "English Chamber Orchestra",
-      year: "1989",
-      rating: 4.6,
-      reviews: 1156
-    }
-  ];
-
-  const upcomingConcerts = [
-    {
-      id: 1,
-      title: "Mahler Symphony No. 5",
-      venue: "Carnegie Hall",
-      date: "March 15, 2024",
-      conductor: "Gustavo Dudamel",
-      orchestra: "Los Angeles Philharmonic"
-    },
-    {
-      id: 2,
-      title: "Mozart Piano Concerto No. 23",
-      venue: "Royal Albert Hall",
-      date: "March 18, 2024",
-      conductor: "Simon Rattle",
-      orchestra: "London Symphony Orchestra"
-    }
-  ];
-
-
-  return (
-    <div className="min-h-screen bg-background">
+  const {
+    user
+  } = useAuth();
+  const featuredRecordings = [{
+    id: 1,
+    title: "Symphony No. 9 in D minor",
+    composer: "Ludwig van Beethoven",
+    conductor: "Herbert von Karajan",
+    orchestra: "Berlin Philharmonic",
+    year: "1962",
+    rating: 4.8,
+    reviews: 1247
+  }, {
+    id: 2,
+    title: "Piano Concerto No. 1 in B-flat minor",
+    composer: "Pyotr Ilyich Tchaikovsky",
+    conductor: "Claudio Abbado",
+    orchestra: "Vienna Philharmonic",
+    year: "1989",
+    rating: 4.7,
+    reviews: 892
+  }, {
+    id: 3,
+    title: "The Four Seasons",
+    composer: "Antonio Vivaldi",
+    conductor: "Nigel Kennedy",
+    orchestra: "English Chamber Orchestra",
+    year: "1989",
+    rating: 4.6,
+    reviews: 1156
+  }];
+  const upcomingConcerts = [{
+    id: 1,
+    title: "Mahler Symphony No. 5",
+    venue: "Carnegie Hall",
+    date: "March 15, 2024",
+    conductor: "Gustavo Dudamel",
+    orchestra: "Los Angeles Philharmonic"
+  }, {
+    id: 2,
+    title: "Mozart Piano Concerto No. 23",
+    venue: "Royal Albert Hall",
+    date: "March 18, 2024",
+    conductor: "Simon Rattle",
+    orchestra: "London Symphony Orchestra"
+  }];
+  return <div className="min-h-screen bg-background">
       <Navigation />
 
       {/* Hero Section */}
       <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage} 
-            alt="Concert Hall" 
-            className="w-full h-full object-cover opacity-10"
-          />
+          <img src={heroImage} alt="Concert Hall" className="w-full h-full object-cover opacity-10" />
           <div className="absolute inset-0 bg-gradient-hero"></div>
         </div>
         
         <div className="content-container relative z-10 text-center">
           <h1 className="text-2xl md:text-3xl font-bold leading-tight mb-8">
-            <span className="block">Log your recent concerts or favourite recordings.</span>
-            <span className="block">Find your next concert in your area.</span>
-            <span className="block">Connect with like minded people and play in ensembles.</span>
+            <span className="block">Log your recent concerts and favourite recordings.</span>
+            <span className="block">Find the next concert in your area.</span>
+            <span className="block">Connect with like-minded people and play in ensembles.</span>
           </h1>
           
           <p className="text-sm italic opacity-75 mb-12 text-center">
@@ -100,22 +85,12 @@ const Index = () => {
               <div className="relative overflow-hidden rounded-xl shadow-elegant">
                 <div className="flex">
                   {/* Left Side - Log Recording (Brown) */}
-                  <Button 
-                    variant="ghost"
-                    size="lg" 
-                    className="h-20 px-12 text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600"
-                    onClick={() => setShowLogRecording(!showLogRecording)}
-                  >
+                  <Button variant="ghost" size="lg" className="h-20 px-12 text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600" onClick={() => setShowLogRecording(!showLogRecording)}>
                     <Music className="h-7 w-7 mr-3" />
                     Log Recording
                   </Button>
                   {/* Right Side - Log Concert (White) */}
-                  <Button 
-                    variant="outline"
-                    size="lg" 
-                    className="h-20 px-12 text-xl bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200"
-                    onClick={() => setShowLogConcert(!showLogConcert)}
-                  >
+                  <Button variant="outline" size="lg" className="h-20 px-12 text-xl bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200" onClick={() => setShowLogConcert(!showLogConcert)}>
                     <Calendar className="h-7 w-7 mr-3" />
                     Log Concert
                   </Button>
@@ -124,8 +99,7 @@ const Index = () => {
             </div>
 
             {/* Log Recording Interface */}
-            {showLogRecording && (
-              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
+            {showLogRecording && <div className="w-full p-6 bg-card rounded-xl border space-y-4">
                 <h3 className="text-xl font-semibold">Log a Recording</h3>
                 <div className="space-y-4">
                   <Input placeholder="Composer (e.g., Bach, Mozart)" />
@@ -137,12 +111,10 @@ const Index = () => {
                     <Button variant="outline" onClick={() => setShowLogRecording(false)}>Cancel</Button>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
 
             {/* Log Concert Interface */}
-            {showLogConcert && (
-              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
+            {showLogConcert && <div className="w-full p-6 bg-card rounded-xl border space-y-4">
                 <h3 className="text-xl font-semibold">Log a Concert</h3>
                 <div className="space-y-4">
                   <Input placeholder="Concert/Performance Title" />
@@ -156,8 +128,7 @@ const Index = () => {
                     <Button variant="outline" onClick={() => setShowLogConcert(false)}>Cancel</Button>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Main Action Buttons - More Prominent */}
@@ -183,8 +154,7 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredRecordings.map((recording) => (
-              <Card key={recording.id} className="group hover:shadow-elegant transition-all duration-300 bg-gradient-card border-border">
+            {featuredRecordings.map(recording => <Card key={recording.id} className="group hover:shadow-elegant transition-all duration-300 bg-gradient-card border-border">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -215,8 +185,7 @@ const Index = () => {
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -230,8 +199,7 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-2 gap-6">
-            {upcomingConcerts.map((concert) => (
-              <Card key={concert.id} className="hover:shadow-elegant transition-all duration-300">
+            {upcomingConcerts.map(concert => <Card key={concert.id} className="hover:shadow-elegant transition-all duration-300">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -255,8 +223,7 @@ const Index = () => {
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -342,8 +309,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
