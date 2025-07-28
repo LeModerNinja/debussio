@@ -82,14 +82,14 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-hero"></div>
         </div>
         
-        <div className="content-container relative z-10">
-          <h1 className="text-xl md:text-2xl font-bold leading-tight mb-8 text-left">
+        <div className="content-container relative z-10 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold leading-tight mb-8">
             <span className="block">Log your recent concerts or favourite recordings.</span>
             <span className="block">Find your next concert in your area.</span>
             <span className="block">Connect with like minded people and play in ensembles.</span>
           </h1>
           
-          <p className="text-sm italic opacity-75 mb-12">
+          <p className="text-sm italic opacity-75 mb-12 text-center">
             DeBussio is fully open source and free to use.
           </p>
           
@@ -103,20 +103,20 @@ const Index = () => {
                   <Button 
                     variant="ghost"
                     size="lg" 
-                    className="h-14 px-8 text-lg bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600"
+                    className="h-20 px-12 text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600"
                     onClick={() => setShowLogRecording(!showLogRecording)}
                   >
-                    <Music className="h-6 w-6 mr-3" />
+                    <Music className="h-7 w-7 mr-3" />
                     Log Recording
                   </Button>
                   {/* Right Side - Log Concert (White) */}
                   <Button 
                     variant="outline"
                     size="lg" 
-                    className="h-14 px-8 text-lg bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200"
+                    className="h-20 px-12 text-xl bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200"
                     onClick={() => setShowLogConcert(!showLogConcert)}
                   >
-                    <Calendar className="h-6 w-6 mr-3" />
+                    <Calendar className="h-7 w-7 mr-3" />
                     Log Concert
                   </Button>
                 </div>
