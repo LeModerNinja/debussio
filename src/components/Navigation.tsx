@@ -39,7 +39,7 @@ export function Navigation() {
               <Music className="h-5 w-5 text-primary-foreground" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              <span className="text-xl font-bold font-serif bg-gradient-primary bg-clip-text text-transparent">
                 DeBussio
               </span>
               <span className="text-xs text-muted-foreground -mt-1 hidden sm:block">
