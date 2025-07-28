@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { musicBrainzService, type MusicBrainzRecording } from '@/services/musicBrainzService';
 import { albumArtService, type AlbumArtResult } from '@/services/albumArtService';
+import { LibrarySearch, LibrarySearchFilters } from '@/components/LibrarySearch';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { X, Search, Music, Calendar, Loader2, ExternalLink, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Search, Music, Calendar, Loader2, ExternalLink, Star, ChevronDown, ChevronUp, Filter, Database } from 'lucide-react';
 import { StarRating } from '@/components/StarRating';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -71,6 +72,8 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
   const [albumArt, setAlbumArt] = useState<AlbumArtResult | null>(null);
   const [loadingAlbumArt, setLoadingAlbumArt] = useState(false);
   const [showDetailedRatings, setShowDetailedRatings] = useState(false);
+  const [searchMode, setSearchMode] = useState<'musicbrainz' | 'advanced'>('musicbrainz');
+  const [advancedSearchFilters, setAdvancedSearchFilters] = useState<LibrarySearchFilters>({});
   const [detailedRatings, setDetailedRatings] = useState<DetailedRatings>({
     recordingQuality: 3,
     soloistPerformance: 3,
@@ -228,6 +231,16 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
       title: "Recording Selected",
       description: `Added "${recording.title}" by ${recording.artists[0]}`,
     });
+  };
+
+  // Handle advanced search filters
+  const handleAdvancedSearch = (filters: LibrarySearchFilters) => {
+    setAdvancedSearchFilters(filters);
+    // Auto-populate form fields if filters have specific values
+    if (filters.composer) setValue('composer', filters.composer);
+    if (filters.pieceTitle) setValue('title', filters.pieceTitle);
+    if (filters.performer) setValue('orchestra', filters.performer);
+    if (filters.conductor) setValue('conductor', filters.conductor);
   };
 
   const onSubmit = async (data: LogEntryForm) => {
@@ -416,63 +429,102 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* MusicBrainz Search for Recordings */}
+          {/* Search Method Selection for Recordings */}
           {type === 'recording' && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <Label htmlFor="search">Search MusicBrainz Database</Label>
-                  <div className="flex gap-2 mt-1">
+              {/* Search Mode Toggle */}
+              <div className="flex items-center gap-2 p-1 bg-muted rounded-lg w-fit">
+                <Button
+                  type="button"
+                  variant={searchMode === 'musicbrainz' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSearchMode('musicbrainz')}
+                  className="gap-2"
+                >
+                  <Database className="h-4 w-4" />
+                  MusicBrainz Search
+                </Button>
+                <Button
+                  type="button"
+                  variant={searchMode === 'advanced' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSearchMode('advanced')}
+                  className="gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Advanced Search
+                </Button>
+              </div>
+
+              {/* MusicBrainz Search */}
+              {searchMode === 'musicbrainz' && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
                     <div className="flex-1 relative">
-                      <Input
-                        id="search"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Start typing composer, piece title, or performer..."
-                        onKeyDown={(e) => e.key === 'Enter' && searchMusicBrainz()}
-                        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                      />
-                      
-                      {/* Search Suggestions Dropdown */}
-                      {showSuggestions && suggestions.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-background border rounded-md shadow-lg max-h-64 overflow-y-auto">
-                          {suggestions.map((suggestion) => (
-                            <div
-                              key={suggestion.id}
-                              className="p-3 hover:bg-muted cursor-pointer border-b border-border/50 last:border-b-0"
-                              onClick={() => selectRecording(suggestion)}
-                            >
-                              <div className="font-medium text-sm">{suggestion.title}</div>
-                              <div className="text-xs text-muted-foreground">
-                                by {suggestion.artists.join(', ')}
-                              </div>
-                              {suggestion.releaseTitle && (
-                                <div className="text-xs text-muted-foreground">
-                                  {suggestion.releaseTitle}
+                      <Label htmlFor="search">Search MusicBrainz Database</Label>
+                      <div className="flex gap-2 mt-1">
+                        <div className="flex-1 relative">
+                          <Input
+                            id="search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Start typing composer, piece title, or performer..."
+                            onKeyDown={(e) => e.key === 'Enter' && searchMusicBrainz()}
+                            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                          />
+                          
+                          {/* Search Suggestions Dropdown */}
+                          {showSuggestions && suggestions.length > 0 && (
+                            <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-background border rounded-md shadow-lg max-h-64 overflow-y-auto">
+                              {suggestions.map((suggestion) => (
+                                <div
+                                  key={suggestion.id}
+                                  className="p-3 hover:bg-muted cursor-pointer border-b border-border/50 last:border-b-0"
+                                  onClick={() => selectRecording(suggestion)}
+                                >
+                                  <div className="font-medium text-sm">{suggestion.title}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    by {suggestion.artists.join(', ')}
+                                  </div>
+                                  {suggestion.releaseTitle && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {suggestion.releaseTitle}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
-                      )}
+                        <Button 
+                          type="button" 
+                          onClick={searchMusicBrainz}
+                          disabled={searchLoading || !searchQuery.trim()}
+                          className="gap-2"
+                        >
+                          {searchLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Search className="h-4 w-4" />
+                          )}
+                          Search
+                        </Button>
+                      </div>
                     </div>
-                    <Button 
-                      type="button" 
-                      onClick={searchMusicBrainz}
-                      disabled={searchLoading || !searchQuery.trim()}
-                      className="gap-2"
-                    >
-                      {searchLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Search className="h-4 w-4" />
-                      )}
-                      Search
-                    </Button>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Advanced Search */}
+              {searchMode === 'advanced' && (
+                <div className="space-y-4">
+                  <LibrarySearch onSearchChange={handleAdvancedSearch} />
+                  <div className="text-sm text-muted-foreground">
+                    Use the advanced search to find specific recordings by composer, piece, performer, etc. The form will auto-populate with your search criteria.
+                  </div>
+                </div>
+              )}
 
               {/* Selected Recording Display */}
               {selectedRecording && (

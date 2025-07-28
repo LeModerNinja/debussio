@@ -2,15 +2,18 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
+import { LibrarySearch, LibrarySearchFilters } from '@/components/LibrarySearch';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen } from "lucide-react";
+import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter } from "lucide-react";
 import heroImage from "@/assets/hero-concert-hall.jpg";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchFilters, setSearchFilters] = useState<LibrarySearchFilters>({});
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const { user } = useAuth();
 
   const featuredRecordings = [
@@ -65,6 +68,12 @@ const Index = () => {
     }
   ];
 
+  const handleSearchFilter = (filters: LibrarySearchFilters) => {
+    setSearchFilters(filters);
+    // TODO: Implement actual search logic with filters
+    console.log('Search filters:', filters);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -92,24 +101,43 @@ const Index = () => {
             to grand symphonic concerts — build your musical story with a passionate community.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <div className="relative w-full max-w-lg">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search composers, pieces, conductors..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-14 text-lg glass-card border-border/30"
-              />
+          {/* Enhanced Search Section */}
+          <div className="w-full max-w-4xl mx-auto space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="relative w-full max-w-lg">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                <Input
+                  type="text"
+                  placeholder="Search composers, pieces, conductors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-14 text-lg glass-card border-border/30"
+                />
+              </div>
+              <Button variant="hero" size="lg" className="h-14 px-8 text-lg whitespace-nowrap">
+                <Search className="h-5 w-5 mr-3" />
+                Explore Music
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="h-14 px-6 gap-2"
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+              >
+                <Filter className="h-5 w-5" />
+                Advanced
+              </Button>
             </div>
-            <Button variant="hero" size="lg" className="h-14 px-8 text-lg whitespace-nowrap">
-              <Search className="h-5 w-5 mr-3" />
-              Explore Music
-            </Button>
+
+            {/* Advanced Search */}
+            {showAdvancedSearch && (
+              <div className="w-full">
+                <LibrarySearch onSearchChange={handleSearchFilter} />
+              </div>
+            )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 mt-16">
             {user ? (
               <>
                 <Button variant="elegant" size="lg" asChild className="hover-lift">
