@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter } from "lucide-react";
 import heroImage from "@/assets/hero-concert-hall.jpg";
 const Index = () => {
@@ -98,24 +99,33 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Log Recording Interface */}
-            {showLogRecording && <div className="w-full p-6 bg-card rounded-xl border space-y-4">
-                <h3 className="text-xl font-semibold">Log a Recording</h3>
+            {/* Log Recording Dialog */}
+            <Dialog open={showLogRecording} onOpenChange={setShowLogRecording}>
+              <DialogContent className="max-w-md">
                 <div className="space-y-4">
                   <Input placeholder="Composer (e.g., Bach, Mozart)" />
                   <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" />
                   <Input placeholder="Performer/Orchestra" />
                   <Input placeholder="Conductor" />
-                  <div className="flex gap-4">
-                    <Button variant="default">Save Recording</Button>
-                    <Button variant="outline" onClick={() => setShowLogRecording(false)}>Cancel</Button>
+                  <div className="flex justify-between items-center">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Advanced Search
+                    </Button>
+                    <div className="flex gap-4">
+                      <Button variant="default">Save Recording</Button>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                    </div>
                   </div>
                 </div>
-              </div>}
+              </DialogContent>
+            </Dialog>
 
-            {/* Log Concert Interface */}
-            {showLogConcert && <div className="w-full p-6 bg-card rounded-xl border space-y-4">
-                <h3 className="text-xl font-semibold">Log a Concert</h3>
+            {/* Log Concert Dialog */}
+            <Dialog open={showLogConcert} onOpenChange={setShowLogConcert}>
+              <DialogContent className="max-w-md">
                 <div className="space-y-4">
                   <Input placeholder="Concert/Performance Title" />
                   <Input placeholder="Venue" />
@@ -123,12 +133,21 @@ const Index = () => {
                   <Input placeholder="Orchestra/Ensemble" />
                   <Input placeholder="Conductor" />
                   <Input placeholder="Program/Pieces Performed" />
-                  <div className="flex gap-4">
-                    <Button variant="default">Save Concert</Button>
-                    <Button variant="outline" onClick={() => setShowLogConcert(false)}>Cancel</Button>
+                  <div className="flex justify-between items-center">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Advanced Search
+                    </Button>
+                    <div className="flex gap-4">
+                      <Button variant="default">Save Concert</Button>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                    </div>
                   </div>
                 </div>
-              </div>}
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Main Action Buttons - More Prominent */}
