@@ -8,8 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Music, Calendar, Users, Star, Play, Plus, Heart, BookOpen, Filter } from "lucide-react";
 import heroImage from "@/assets/hero-concert-hall.jpg";
-import conductorImage from "@/assets/conductor-hero.jpg";
-import conductorBackground from "@/assets/conductor-background.png";
 
 const Index = () => {
   const [showLogRecording, setShowLogRecording] = useState(false);
@@ -74,86 +72,68 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-24 px-4 overflow-hidden min-h-[70vh] flex items-center">
-        <div className="content-container relative z-10 text-center w-full">
-          {/* Elegant Separator Line */}
-          <div className="w-24 h-px bg-primary/30 mx-auto mb-12"></div>
-          
-          {/* Updated Title - More Eloquent with Full Stops */}
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-relaxed mb-8 max-w-4xl mx-auto">
-            Chronicle your musical encounters and cherished recordings.
+      <section className="relative py-24 px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroImage} 
+            alt="Concert Hall" 
+            className="w-full h-full object-cover opacity-10"
+          />
+          <div className="absolute inset-0 bg-gradient-hero"></div>
+        </div>
+        
+        <div className="content-container relative z-10 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
+            Log your recent concerts or favourite recordings.
+            <br />
+            <span className="text-3xl md:text-4xl font-normal opacity-90">
+              Find your next concert in your area.
+            </span>
+            <br />
+            <span className="text-2xl md:text-3xl font-normal opacity-80">
+              Connect with like minded people and play in ensembles.
+            </span>
           </h1>
           
-          {/* Elegant Separator */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="w-16 h-px bg-muted-foreground/20"></div>
-            <div className="w-2 h-2 rounded-full bg-muted-foreground/30 mx-4"></div>
-            <div className="w-16 h-px bg-muted-foreground/20"></div>
-          </div>
-          
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed mb-8 max-w-4xl mx-auto">
-            Discover extraordinary performances in your vicinity.
-          </h2>
-          
-          {/* Elegant Separator */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="w-12 h-px bg-muted-foreground/15"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/25 mx-3"></div>
-            <div className="w-12 h-px bg-muted-foreground/15"></div>
-          </div>
-          
-          <h3 className="text-lg md:text-xl lg:text-2xl font-medium leading-relaxed mb-12 max-w-4xl mx-auto">
-            Unite with fellow musicians and create harmonious ensembles.
-          </h3>
-          
-          {/* Elegant Bottom Separator */}
-          <div className="w-32 h-px bg-muted-foreground/20 mx-auto mb-8"></div>
-          
-          <p className="text-sm italic opacity-60 mb-16">
-            DeBussio is fully open source and free to use.
+          <p className="text-sm italic opacity-75 mb-12">
+            DeBussio is fully open source and free to use
           </p>
           
-          {/* Unified Two-Sided Button */}
-          <div className="max-w-2xl mx-auto space-y-8">
-            <div className="flex justify-center">
-              {/* Single Button with Two Colored Sides */}
-              <div className="relative overflow-hidden rounded-2xl shadow-elegant border border-border/20">
-                <div className="flex">
-                  {/* Left Side - Brown (Log Recording) */}
-                  <Button 
-                    variant="ghost"
-                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 bg-amber-800 text-white hover:bg-amber-700 transition-all duration-300 hover:scale-105 group"
-                    onClick={() => setShowLogRecording(!showLogRecording)}
-                  >
-                    <Music className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
-                    Log Recording
-                  </Button>
-                  
-                  {/* Right Side - White (Log Concert) */}
-                  <Button 
-                    variant="ghost"
-                    className="h-20 px-12 text-xl font-semibold rounded-none border-0 bg-white text-gray-900 hover:bg-gray-50 transition-all duration-300 hover:scale-105 group border-l border-border/30"
-                    onClick={() => setShowLogConcert(!showLogConcert)}
-                  >
-                    <Calendar className="h-8 w-8 mr-4 group-hover:scale-110 transition-transform" />
-                    Log Concert
-                  </Button>
-                </div>
-              </div>
+          {/* Logging Actions */}
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="h-14 px-8 text-lg"
+                onClick={() => setShowLogRecording(!showLogRecording)}
+              >
+                <Music className="h-6 w-6 mr-3" />
+                Log Recording
+              </Button>
+              <Button 
+                variant="elegant" 
+                size="lg" 
+                className="h-14 px-8 text-lg"
+                onClick={() => setShowLogConcert(!showLogConcert)}
+              >
+                <Calendar className="h-6 w-6 mr-3" />
+                Log Concert
+              </Button>
             </div>
 
             {/* Log Recording Interface */}
             {showLogRecording && (
-              <div className="w-full p-8 bg-card/95 backdrop-blur-sm rounded-xl border border-border/50 space-y-4 animate-fade-in">
-                <h3 className="text-2xl font-semibold">Log a Recording</h3>
+              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
+                <h3 className="text-xl font-semibold">Log a Recording</h3>
                 <div className="space-y-4">
-                  <Input placeholder="Composer (e.g., Bach, Mozart)" className="h-12 text-lg" />
-                  <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" className="h-12 text-lg" />
-                  <Input placeholder="Performer/Orchestra" className="h-12 text-lg" />
-                  <Input placeholder="Conductor" className="h-12 text-lg" />
-                  <div className="flex gap-4 pt-4">
-                    <Button variant="default" size="lg" className="h-12 px-8">Save Recording</Button>
-                    <Button variant="outline" size="lg" className="h-12 px-8" onClick={() => setShowLogRecording(false)}>Cancel</Button>
+                  <Input placeholder="Composer (e.g., Bach, Mozart)" />
+                  <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" />
+                  <Input placeholder="Performer/Orchestra" />
+                  <Input placeholder="Conductor" />
+                  <div className="flex gap-4">
+                    <Button variant="default">Save Recording</Button>
+                    <Button variant="outline" onClick={() => setShowLogRecording(false)}>Cancel</Button>
                   </div>
                 </div>
               </div>
@@ -161,32 +141,32 @@ const Index = () => {
 
             {/* Log Concert Interface */}
             {showLogConcert && (
-              <div className="w-full p-8 bg-card/95 backdrop-blur-sm rounded-xl border border-border/50 space-y-4 animate-fade-in">
-                <h3 className="text-2xl font-semibold">Log a Concert</h3>
+              <div className="w-full p-6 bg-card rounded-xl border space-y-4">
+                <h3 className="text-xl font-semibold">Log a Concert</h3>
                 <div className="space-y-4">
-                  <Input placeholder="Concert/Performance Title" className="h-12 text-lg" />
-                  <Input placeholder="Venue" className="h-12 text-lg" />
-                  <Input placeholder="Date" type="date" className="h-12 text-lg" />
-                  <Input placeholder="Orchestra/Ensemble" className="h-12 text-lg" />
-                  <Input placeholder="Conductor" className="h-12 text-lg" />
-                  <Input placeholder="Program/Pieces Performed" className="h-12 text-lg" />
-                  <div className="flex gap-4 pt-4">
-                    <Button variant="default" size="lg" className="h-12 px-8">Save Concert</Button>
-                    <Button variant="outline" size="lg" className="h-12 px-8" onClick={() => setShowLogConcert(false)}>Cancel</Button>
+                  <Input placeholder="Concert/Performance Title" />
+                  <Input placeholder="Venue" />
+                  <Input placeholder="Date" type="date" />
+                  <Input placeholder="Orchestra/Ensemble" />
+                  <Input placeholder="Conductor" />
+                  <Input placeholder="Program/Pieces Performed" />
+                  <div className="flex gap-4">
+                    <Button variant="default">Save Concert</Button>
+                    <Button variant="outline" onClick={() => setShowLogConcert(false)}>Cancel</Button>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Secondary Action Buttons - Smaller with Different Color Scheme */}
-          <div className="flex flex-wrap justify-center gap-4 mt-20">
-            <Button variant="outline" size="default" className="h-12 px-6 text-base border-muted-foreground/30 hover:border-muted-foreground hover:bg-muted/50">
-              <Calendar className="h-5 w-5 mr-2" />
+          {/* Main Action Buttons - More Prominent */}
+          <div className="flex flex-wrap justify-center gap-6 mt-16">
+            <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
+              <Calendar className="h-6 w-6 mr-3" />
               Discover Concerts
             </Button>
-            <Button variant="secondary" size="default" className="h-12 px-6 text-base">
-              <Users className="h-5 w-5 mr-2" />
+            <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
+              <Users className="h-6 w-6 mr-3" />
               Join Community
             </Button>
           </div>
