@@ -112,6 +112,7 @@ export default function Library() {
       </div>
 
       <main className="content-container py-8">
+        {/* Log Entry Modal */}
         {showLogEntry && (
           <div className="mb-8">
             <LogEntry 
@@ -121,7 +122,7 @@ export default function Library() {
           </div>
         )}
 
-        {/* Search Component */}
+        {/* Advanced Search - Prominently Placed */}
         <div className="mb-8">
           <LibrarySearch onSearchChange={setSearchFilters} />
         </div>
