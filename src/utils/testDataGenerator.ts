@@ -88,15 +88,19 @@ export async function generateTestData() {
         .from('composers')
         .select('id')
         .ilike('name', composer)
-        .single();
+        .maybeSingle();
 
       let composerId;
       if (!existingComposer) {
-        const { data: newComposer } = await supabase
+        const { data: newComposer, error: composerError } = await supabase
           .from('composers')
           .insert({ name: composer })
           .select('id')
           .single();
+        if (composerError) {
+          console.error(`❌ Error creating composer ${composer}:`, composerError);
+          continue;
+        }
         composerId = newComposer?.id;
       } else {
         composerId = existingComposer.id;
@@ -110,11 +114,11 @@ export async function generateTestData() {
         .select('id')
         .eq('composer_id', composerId)
         .ilike('title', piece)
-        .single();
+        .maybeSingle();
 
       let pieceId;
       if (!existingPiece) {
-        const { data: newPiece } = await supabase
+        const { data: newPiece, error: pieceError } = await supabase
           .from('pieces')
           .insert({
             title: piece,
@@ -122,6 +126,10 @@ export async function generateTestData() {
           })
           .select('id')
           .single();
+        if (pieceError) {
+          console.error(`❌ Error creating piece ${piece}:`, pieceError);
+          continue;
+        }
         pieceId = newPiece?.id;
       } else {
         pieceId = existingPiece.id;
@@ -136,11 +144,11 @@ export async function generateTestData() {
         .eq('piece_id', pieceId)
         .eq('conductor', conductor)
         .eq('orchestra', orchestra)
-        .single();
+        .maybeSingle();
 
       let recordingId;
       if (!existingRecording) {
-        const { data: newRecording } = await supabase
+        const { data: newRecording, error: recordingError } = await supabase
           .from('recordings')
           .insert({
             piece_id: pieceId,
@@ -149,6 +157,10 @@ export async function generateTestData() {
           })
           .select('id')
           .single();
+        if (recordingError) {
+          console.error(`❌ Error creating recording:`, recordingError);
+          continue;
+        }
         recordingId = newRecording?.id;
       } else {
         recordingId = existingRecording.id;
@@ -157,7 +169,7 @@ export async function generateTestData() {
       if (!recordingId) continue;
 
       // Create user entry
-      await supabase
+      const { error: entryError } = await supabase
         .from('user_entries')
         .insert({
           user_id: user.id,
@@ -167,6 +179,11 @@ export async function generateTestData() {
           notes: getRandomElement(notes),
           entry_date: getRandomDate()
         });
+
+      if (entryError) {
+        console.error(`❌ Error creating user entry:`, entryError);
+        continue;
+      }
 
       console.log(`✅ Created recording entry: ${composer} - ${piece}`);
     }
