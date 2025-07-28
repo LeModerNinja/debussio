@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { Navigation } from '@/components/Navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +11,7 @@ import heroImage from "@/assets/hero-concert-hall.jpg";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuth();
 
   const featuredRecordings = [
     {
@@ -63,29 +67,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Music className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-foreground">DeBussio</h1>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-6">
-              <a href="#" className="text-foreground hover:text-primary transition-colors">Discover</a>
-              <a href="#" className="text-foreground hover:text-primary transition-colors">Concerts</a>
-              <a href="#" className="text-foreground hover:text-primary transition-colors">Community</a>
-              <a href="#" className="text-foreground hover:text-primary transition-colors">My Library</a>
-            </nav>
-
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm">Sign In</Button>
-              <Button variant="hero" size="sm">Get Started</Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
@@ -126,18 +108,39 @@ const Index = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <Button variant="elegant" size="lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Log a Recording
-            </Button>
-            <Button variant="elegant" size="lg">
-              <Calendar className="h-4 w-4 mr-2" />
-              Find Concerts
-            </Button>
-            <Button variant="elegant" size="lg">
-              <Users className="h-4 w-4 mr-2" />
-              Join Community
-            </Button>
+            {user ? (
+              <>
+                <Button variant="elegant" size="lg" asChild>
+                  <Link to="/library">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Log a Recording
+                  </Link>
+                </Button>
+                <Button variant="elegant" size="lg">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Find Concerts
+                </Button>
+                <Button variant="elegant" size="lg">
+                  <Users className="h-4 w-4 mr-2" />
+                  Community
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="elegant" size="lg" asChild>
+                  <Link to="/auth">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Get Started
+                  </Link>
+                </Button>
+                <Button variant="elegant" size="lg" asChild>
+                  <Link to="/auth">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Join DeBussio
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>
