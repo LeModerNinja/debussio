@@ -131,7 +131,7 @@ export function LibrarySearch({ onSearchChange }: LibrarySearchProps) {
                     <SelectValue placeholder="Any type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any type</SelectItem>
+                    <SelectItem value="all">Any type</SelectItem>
                     <SelectItem value="recording">Recordings</SelectItem>
                     <SelectItem value="concert">Concerts</SelectItem>
                   </SelectContent>
@@ -146,7 +146,7 @@ export function LibrarySearch({ onSearchChange }: LibrarySearchProps) {
                     <SelectValue placeholder="Any rating" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any rating</SelectItem>
+                    <SelectItem value="all">Any rating</SelectItem>
                     <SelectItem value="5">5 stars</SelectItem>
                     <SelectItem value="4">4+ stars</SelectItem>
                     <SelectItem value="3">3+ stars</SelectItem>
@@ -164,7 +164,7 @@ export function LibrarySearch({ onSearchChange }: LibrarySearchProps) {
                     <SelectValue placeholder="Any genre" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any genre</SelectItem>
+                    <SelectItem value="all">Any genre</SelectItem>
                     <SelectItem value="Symphony">Symphony</SelectItem>
                     <SelectItem value="Concerto">Concerto</SelectItem>
                     <SelectItem value="Chamber Music">Chamber Music</SelectItem>
@@ -184,7 +184,7 @@ export function LibrarySearch({ onSearchChange }: LibrarySearchProps) {
                     <SelectValue placeholder="Any period" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any period</SelectItem>
+                    <SelectItem value="all">Any period</SelectItem>
                     <SelectItem value="Baroque">Baroque</SelectItem>
                     <SelectItem value="Classical">Classical</SelectItem>
                     <SelectItem value="Romantic">Romantic</SelectItem>

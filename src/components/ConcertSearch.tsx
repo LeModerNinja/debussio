@@ -77,7 +77,7 @@ export function ConcertSearch({
                   <SelectValue placeholder="Any location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any location</SelectItem>
+                  <SelectItem value="all">Any location</SelectItem>
                   <SelectItem value="london">London</SelectItem>
                   <SelectItem value="paris">Paris</SelectItem>
                   <SelectItem value="vienna">Vienna</SelectItem>
