@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
+import { LogEntryForm } from '@/components/LogEntryForm';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import heroImage from "@/assets/hero-concert-hall.jpg";
 const Index = () => {
   const [showLogRecording, setShowLogRecording] = useState(false);
   const [showLogConcert, setShowLogConcert] = useState(false);
+  const navigate = useNavigate();
   const {
     user
   } = useAuth();
@@ -86,12 +88,36 @@ const Index = () => {
               <div className="relative overflow-hidden rounded-xl shadow-elegant">
                 <div className="flex">
                   {/* Left Side - Log Recording (Brown) */}
-                  <Button variant="ghost" size="lg" className="h-20 px-12 text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600" onClick={() => setShowLogRecording(!showLogRecording)}>
+                  <Button 
+                    variant="ghost" 
+                    size="lg" 
+                    className="h-20 px-12 text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600" 
+                    onClick={() => {
+                      if (!user) {
+                        // Redirect to auth if not logged in
+                        navigate('/auth');
+                        return;
+                      }
+                      setShowLogRecording(true);
+                    }}
+                  >
                     <Music className="h-7 w-7 mr-3" />
                     Log Recording
                   </Button>
                   {/* Right Side - Log Concert (White) */}
-                  <Button variant="outline" size="lg" className="h-20 px-12 text-xl bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200" onClick={() => setShowLogConcert(!showLogConcert)}>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="h-20 px-12 text-xl bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200" 
+                    onClick={() => {
+                      if (!user) {
+                        // Redirect to auth if not logged in  
+                        navigate('/auth');
+                        return;
+                      }
+                      setShowLogConcert(true);
+                    }}
+                  >
                     <Calendar className="h-7 w-7 mr-3" />
                     Log Concert
                   </Button>
@@ -101,65 +127,58 @@ const Index = () => {
 
             {/* Log Recording Dialog */}
             <Dialog open={showLogRecording} onOpenChange={setShowLogRecording}>
-              <DialogContent className="max-w-md">
-                <div className="space-y-4">
-                  <Input placeholder="Composer (e.g., Bach, Mozart)" />
-                  <Input placeholder="Piece (e.g., Symphony No. 9, Brandenburg Concerto)" />
-                  <Input placeholder="Performer/Orchestra" />
-                  <Input placeholder="Conductor" />
-                  <div className="flex justify-between items-center">
-                    <Button variant="outline" size="sm">
-                      <Filter className="h-4 w-4 mr-2" />
-                      Advanced Search
-                    </Button>
-                    <div className="flex gap-4">
-                      <Button variant="default">Save Recording</Button>
-                      <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
-                      </DialogClose>
-                    </div>
-                  </div>
-                </div>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <LogEntryForm 
+                  type="recording" 
+                  onSuccess={() => setShowLogRecording(false)} 
+                />
               </DialogContent>
             </Dialog>
 
             {/* Log Concert Dialog */}
             <Dialog open={showLogConcert} onOpenChange={setShowLogConcert}>
-              <DialogContent className="max-w-md">
-                <div className="space-y-4">
-                  <Input placeholder="Concert/Performance Title" />
-                  <Input placeholder="Venue" />
-                  <Input placeholder="Date" type="date" />
-                  <Input placeholder="Orchestra/Ensemble" />
-                  <Input placeholder="Conductor" />
-                  <Input placeholder="Program/Pieces Performed" />
-                  <div className="flex justify-between items-center">
-                    <Button variant="outline" size="sm">
-                      <Filter className="h-4 w-4 mr-2" />
-                      Advanced Search
-                    </Button>
-                    <div className="flex gap-4">
-                      <Button variant="default">Save Concert</Button>
-                      <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
-                      </DialogClose>
-                    </div>
-                  </div>
-                </div>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <LogEntryForm 
+                  type="concert" 
+                  onSuccess={() => setShowLogConcert(false)} 
+                />
               </DialogContent>
             </Dialog>
           </div>
 
           {/* Main Action Buttons - More Prominent */}
           <div className="flex flex-wrap justify-center gap-6 mt-16">
-            <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
-              <Calendar className="h-6 w-6 mr-3" />
-              Discover Concerts
-            </Button>
-            <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant">
-              <Users className="h-6 w-6 mr-3" />
-              Join Community
-            </Button>
+            {user ? (
+              <>
+                <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
+                  <Link to="/concerts">
+                    <Calendar className="h-6 w-6 mr-3" />
+                    Discover Concerts
+                  </Link>
+                </Button>
+                <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
+                  <Link to="/library">
+                    <Users className="h-6 w-6 mr-3" />
+                    My Library
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
+                  <Link to="/concerts">
+                    <Calendar className="h-6 w-6 mr-3" />
+                    Discover Concerts
+                  </Link>
+                </Button>
+                <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
+                  <Link to="/auth">
+                    <Users className="h-6 w-6 mr-3" />
+                    Join Community
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>

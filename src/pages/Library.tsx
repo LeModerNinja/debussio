@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
-import { LogEntry } from '@/components/LogEntry';
+import { LogEntryForm } from '@/components/LogEntryForm';
 import { EntryList } from '@/components/EntryList';
 import { LibrarySearch, LibrarySearchFilters } from '@/components/LibrarySearch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Plus, Music, Calendar, Star, Filter, Grid3X3, List, BarChart3 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Library() {
   const { user } = useAuth();
@@ -113,14 +115,14 @@ export default function Library() {
 
       <main className="content-container py-8">
         {/* Log Entry Modal */}
-        {showLogEntry && (
-          <div className="mb-8">
-            <LogEntry 
+        <Dialog open={showLogEntry} onOpenChange={setShowLogEntry}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <LogEntryForm 
               type={entryType} 
-              onClose={() => setShowLogEntry(false)}
+              onSuccess={() => setShowLogEntry(false)} 
             />
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
 
         {/* Advanced Search - Prominently Placed */}
         <div className="mb-8">
