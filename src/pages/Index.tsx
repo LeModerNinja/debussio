@@ -84,42 +84,43 @@ const Index = () => {
         
         <div className="content-container relative z-10 text-center">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
-            Log your recent concerts or favourite recordings.
-            <br />
-            <span className="text-3xl md:text-4xl font-normal opacity-90">
-              Find your next concert in your area.
-            </span>
-            <br />
-            <span className="text-2xl md:text-3xl font-normal opacity-80">
-              Connect with like minded people and play in ensembles.
-            </span>
+            <span className="block mb-4">CHRONICLE YOUR CHERISHED CONCERTS AND TREASURED RECORDINGS.</span>
+            <span className="block mb-4">DISCOVER EXQUISITE PERFORMANCES IN YOUR VICINITY.</span>
+            <span className="block">CONNECT WITH DISTINGUISHED MUSICIANS AND CULTIVATE ENSEMBLE ARTISTRY.</span>
           </h1>
           
           <p className="text-sm italic opacity-75 mb-12">
-            DeBussio is fully open source and free to use
+            DeBussio is fully open source and free to use.
           </p>
           
           {/* Logging Actions */}
           <div className="max-w-2xl mx-auto space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                variant="hero" 
-                size="lg" 
-                className="h-14 px-8 text-lg"
-                onClick={() => setShowLogRecording(!showLogRecording)}
-              >
-                <Music className="h-6 w-6 mr-3" />
-                Log Recording
-              </Button>
-              <Button 
-                variant="elegant" 
-                size="lg" 
-                className="h-14 px-8 text-lg"
-                onClick={() => setShowLogConcert(!showLogConcert)}
-              >
-                <Calendar className="h-6 w-6 mr-3" />
-                Log Concert
-              </Button>
+            <div className="flex justify-center">
+              {/* Combined Log Button */}
+              <div className="relative overflow-hidden rounded-xl shadow-elegant">
+                <div className="flex">
+                  {/* Left Side - Log Recording (Brown) */}
+                  <Button 
+                    variant="ghost"
+                    size="lg" 
+                    className="h-14 px-8 text-lg bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600"
+                    onClick={() => setShowLogRecording(!showLogRecording)}
+                  >
+                    <Music className="h-6 w-6 mr-3" />
+                    Log Recording
+                  </Button>
+                  {/* Right Side - Log Concert (White) */}
+                  <Button 
+                    variant="outline"
+                    size="lg" 
+                    className="h-14 px-8 text-lg bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200"
+                    onClick={() => setShowLogConcert(!showLogConcert)}
+                  >
+                    <Calendar className="h-6 w-6 mr-3" />
+                    Log Concert
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Log Recording Interface */}
