@@ -1,350 +1,611 @@
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { musicBrainzService, type MusicBrainzRecording } from '@/services/musicBrainzService';
 import { useForm } from 'react-hook-form';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Star, Plus, X } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { X, Search, Music, Calendar, Loader2, ExternalLink, Star } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+
+interface LogEntryForm {
+  title: string;
+  composer: string;
+  conductor?: string;
+  orchestra?: string;
+  soloists?: string;
+  venue?: string;
+  location?: string;
+  concertDate?: string;
+  startTime?: string;
+  program?: string;
+  rating: number;
+  notes: string;
+  tags: string;
+}
 
 interface LogEntryProps {
   type: 'recording' | 'concert';
   onClose: () => void;
 }
 
-// Form data interface for type safety
-interface LogEntryForm {
-  composer: string;
-  piece: string;
-  conductor?: string;
-  orchestra?: string;
+interface MusicBrainzSearchResult {
+  id: string;
+  title: string;
+  artists: string[];
+  releaseTitle?: string;
+  releaseDate?: string;
   label?: string;
-  year?: number;
-  venue?: string;
-  notes?: string;
+  duration?: number;
 }
 
-export const LogEntry = ({ type, onClose }: LogEntryProps) => {
+export function LogEntry({ type, onClose }: LogEntryProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [date, setDate] = useState<Date>();
-  const [rating, setRating] = useState(0);
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<LogEntryForm>();
+  const [showMusicBrainzSearch, setShowMusicBrainzSearch] = useState(false);
+  const [musicBrainzResults, setMusicBrainzResults] = useState<MusicBrainzSearchResult[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRecording, setSelectedRecording] = useState<MusicBrainzSearchResult | null>(null);
 
-  const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag('');
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<LogEntryForm>({
+    defaultValues: {
+      rating: 3,
+      tags: '',
+    },
+  });
+
+  // Search MusicBrainz for recordings
+  const searchMusicBrainz = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setSearchLoading(true);
+    try {
+      const results = await musicBrainzService.searchRecordings(searchQuery);
+      
+      const formattedResults: MusicBrainzSearchResult[] = results.recordings?.map(recording => {
+        const extractedInfo = musicBrainzService.extractRecordingInfo(recording);
+        return {
+          id: extractedInfo.id,
+          title: extractedInfo.title,
+          artists: extractedInfo.artists,
+          releaseTitle: extractedInfo.releaseTitle,
+          releaseDate: extractedInfo.releaseDate,
+          label: extractedInfo.label,
+          duration: extractedInfo.duration,
+        };
+      }) || [];
+      
+      setMusicBrainzResults(formattedResults);
+      setShowMusicBrainzSearch(true);
+    } catch (error) {
+      console.error('MusicBrainz search error:', error);
+      toast({
+        title: "Search Error",
+        description: "Failed to search MusicBrainz. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSearchLoading(false);
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+  // Select a recording from MusicBrainz results
+  const selectRecording = (recording: MusicBrainzSearchResult) => {
+    setSelectedRecording(recording);
+    setValue('title', recording.title);
+    setValue('composer', recording.artists[0] || '');
+    setValue('orchestra', recording.releaseTitle || '');
+    setShowMusicBrainzSearch(false);
+    
+    toast({
+      title: "Recording Selected",
+      description: `Added "${recording.title}" by ${recording.artists[0]}`,
+    });
   };
 
-  // Function to handle form submission and save entry to database
   const onSubmit = async (data: LogEntryForm) => {
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to save entries.",
-        variant: "destructive"
+        title: "Authentication Error",
+        description: "You must be signed in to log entries.",
+        variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-    
     try {
-      // For concerts, validate that date is selected
-      if (type === 'concert' && !date) {
-        toast({
-          title: "Error", 
-          description: "Please select a concert date.",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Create the user entry record
-      // For now, we'll store basic info in notes until we implement full composer/piece lookup
-      const formattedNotes = `${data.composer} - ${data.piece}\n` +
-        (data.conductor ? `Conductor: ${data.conductor}\n` : '') +
-        (data.orchestra ? `Orchestra: ${data.orchestra}\n` : '') +
-        (type === 'recording' && data.label ? `Label: ${data.label}\n` : '') +
-        (type === 'recording' && data.year ? `Year: ${data.year}\n` : '') +
-        (type === 'concert' && data.venue ? `Venue: ${data.venue}\n` : '') +
-        (data.notes ? `\nNotes: ${data.notes}` : '');
-
+      // Create the entry record
       const entryData = {
         user_id: user.id,
         entry_type: type,
-        notes: formattedNotes,
-        rating: rating > 0 ? rating : null,
-        tags: tags.length > 0 ? tags : null,
-        entry_date: format(date || new Date(), 'yyyy-MM-dd')
+        entry_date: type === 'concert' ? data.concertDate || new Date().toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        rating: data.rating,
+        notes: data.notes,
+        tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : null,
       };
 
-      const { error } = await supabase
+      const { data: entry, error: entryError } = await supabase
         .from('user_entries')
-        .insert(entryData);
+        .insert(entryData)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (entryError) throw entryError;
+
+      // For recordings, also create/link recording data
+      if (type === 'recording') {
+        // First, check if we need to create a composer
+        let composerId = null;
+        if (data.composer) {
+          const { data: existingComposer } = await supabase
+            .from('composers')
+            .select('id')
+            .eq('name', data.composer)
+            .single();
+
+          if (existingComposer) {
+            composerId = existingComposer.id;
+          } else {
+            const { data: newComposer, error: composerError } = await supabase
+              .from('composers')
+              .insert({ name: data.composer })
+              .select()
+              .single();
+
+            if (composerError) throw composerError;
+            composerId = newComposer.id;
+          }
+        }
+
+        // Then create/link piece
+        let pieceId = null;
+        if (data.title && composerId) {
+          const { data: existingPiece } = await supabase
+            .from('pieces')
+            .select('id')
+            .eq('title', data.title)
+            .eq('composer_id', composerId)
+            .single();
+
+          if (existingPiece) {
+            pieceId = existingPiece.id;
+          } else {
+            const { data: newPiece, error: pieceError } = await supabase
+              .from('pieces')
+              .insert({
+                title: data.title,
+                composer_id: composerId,
+              })
+              .select()
+              .single();
+
+            if (pieceError) throw pieceError;
+            pieceId = newPiece.id;
+          }
+        }
+
+        // Finally create recording
+        if (pieceId) {
+          const recordingData = {
+            piece_id: pieceId,
+            conductor: data.conductor || null,
+            orchestra: data.orchestra || null,
+            soloists: data.soloists || null,
+            musicbrainz_id: selectedRecording?.id || null,
+          };
+
+          const { data: recording, error: recordingError } = await supabase
+            .from('recordings')
+            .insert(recordingData)
+            .select()
+            .single();
+
+          if (recordingError) throw recordingError;
+
+          // Update entry with recording_id
+          await supabase
+            .from('user_entries')
+            .update({ recording_id: recording.id })
+            .eq('id', entry.id);
+        }
+      }
+
+      // For concerts, create/link concert data
+      if (type === 'concert') {
+        const concertData = {
+          title: data.title,
+          venue: data.venue || 'Unknown Venue',
+          location: data.location || 'Unknown Location',
+          concert_date: data.concertDate || new Date().toISOString().split('T')[0],
+          start_time: data.startTime || null,
+          orchestra: data.orchestra || null,
+          conductor: data.conductor || null,
+          soloists: data.soloists || null,
+          program: data.program || null,
+        };
+
+        const { data: concert, error: concertError } = await supabase
+          .from('concerts')
+          .insert(concertData)
+          .select()
+          .single();
+
+        if (concertError) throw concertError;
+
+        // Update entry with concert_id
+        await supabase
+          .from('user_entries')
+          .update({ concert_id: concert.id })
+          .eq('id', entry.id);
+      }
 
       toast({
         title: "Success!",
-        description: `${type === 'recording' ? 'Recording' : 'Concert'} entry saved to your library.`
+        description: `${type === 'recording' ? 'Recording' : 'Concert'} logged successfully.`,
       });
 
-      // Reset form and close
-      reset();
-      setRating(0);
-      setTags([]);
-      setDate(undefined);
       onClose();
-      
     } catch (error) {
-      console.error('Error saving entry:', error);
+      console.error('Error creating entry:', error);
       toast({
         title: "Error",
-        description: "Failed to save entry. Please try again.",
-        variant: "destructive"
+        description: `Failed to log ${type}. Please try again.`,
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderStars = () => {
-    return [...Array(5)].map((_, i) => (
-      <Star
-        key={i}
-        className={cn(
-          "h-5 w-5 cursor-pointer transition-colors",
-          i < rating ? "fill-accent text-accent" : "text-muted-foreground hover:text-accent"
-        )}
-        onClick={() => setRating(i + 1)}
-      />
-    ));
-  };
-
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Log {type === 'recording' ? 'Recording' : 'Concert'}</CardTitle>
-            <CardDescription>
-              Add a new {type} to your classical music journey
-            </CardDescription>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {type === 'recording' ? (
+                <Music className="h-5 w-5 text-primary" />
+              ) : (
+                <Calendar className="h-5 w-5 text-primary" />
+              )}
+              <CardTitle>
+                Log {type === 'recording' ? 'Recording' : 'Concert'}
+              </CardTitle>
+            </div>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
+          <CardDescription>
+            {type === 'recording' 
+              ? 'Add a classical recording to your library with rich metadata from MusicBrainz'
+              : 'Log a concert experience with details about the performance'
+            }
+          </CardDescription>
+        </CardHeader>
 
-      <CardContent className="space-y-6">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="space-y-2">
-              <Label htmlFor="composer">Composer *</Label>
-              <Input 
-                id="composer" 
-                placeholder="e.g., Ludwig van Beethoven"
-                {...register('composer', { required: 'Composer is required' })}
-              />
-              {errors.composer && <p className="text-sm text-destructive">{errors.composer.message}</p>}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="piece">Piece/Work *</Label>
-              <Input 
-                id="piece" 
-                placeholder="e.g., Symphony No. 9 in D minor"
-                {...register('piece', { required: 'Piece is required' })}
-              />
-              {errors.piece && <p className="text-sm text-destructive">{errors.piece.message}</p>}
-            </div>
-          </div>
-
-          {type === 'recording' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="space-y-2">
-                <Label htmlFor="conductor">Conductor</Label>
-                <Input 
-                  id="conductor" 
-                  placeholder="e.g., Herbert von Karajan"
-                  {...register('conductor')}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="orchestra">Orchestra/Ensemble</Label>
-                <Input 
-                  id="orchestra" 
-                  placeholder="e.g., Berlin Philharmonic"
-                  {...register('orchestra')}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="label">Record Label</Label>
-                <Input 
-                  id="label" 
-                  placeholder="e.g., Deutsche Grammophon"
-                  {...register('label')}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="year">Recording Year</Label>
-                <Input 
-                  id="year" 
-                  type="number" 
-                  placeholder="e.g., 1962"
-                  {...register('year', { valueAsNumber: true })}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="space-y-2">
-                <Label htmlFor="venue">Venue</Label>
-                <Input 
-                  id="venue" 
-                  placeholder="e.g., Carnegie Hall"
-                  {...register('venue')}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="conductor">Conductor</Label>
-                <Input 
-                  id="conductor" 
-                  placeholder="e.g., Gustavo Dudamel"
-                  {...register('conductor')}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="orchestra">Orchestra/Ensemble</Label>
-                <Input 
-                  id="orchestra" 
-                  placeholder="e.g., Los Angeles Philharmonic"
-                  {...register('orchestra')}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Concert Date {type === 'concert' && '*'}</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
+        <CardContent className="space-y-6">
+          {/* MusicBrainz Search for Recordings */}
+          {type === 'recording' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Label htmlFor="search">Search MusicBrainz Database</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by composer, piece title, or performer..."
+                      onKeyDown={(e) => e.key === 'Enter' && searchMusicBrainz()}
                     />
-                  </PopoverContent>
-                </Popover>
+                    <Button 
+                      type="button" 
+                      onClick={searchMusicBrainz}
+                      disabled={searchLoading || !searchQuery.trim()}
+                      className="gap-2"
+                    >
+                      {searchLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
+                      Search
+                    </Button>
+                  </div>
+                </div>
               </div>
+
+              {/* Selected Recording Display */}
+              {selectedRecording && (
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-medium text-sm">Selected from MusicBrainz:</h4>
+                      <p className="font-semibold">{selectedRecording.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        by {selectedRecording.artists.join(', ')}
+                      </p>
+                      {selectedRecording.releaseTitle && (
+                        <p className="text-sm text-muted-foreground">
+                          Album: {selectedRecording.releaseTitle}
+                        </p>
+                      )}
+                    </div>
+                    <Badge variant="secondary" className="gap-1">
+                      <ExternalLink className="h-3 w-3" />
+                      MusicBrainz
+                    </Badge>
+                  </div>
+                </div>
+              )}
+
+              {/* MusicBrainz Search Results */}
+              {showMusicBrainzSearch && musicBrainzResults.length > 0 && (
+                <div className="border rounded-lg p-4 bg-background">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-medium">MusicBrainz Results</h4>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowMusicBrainzSearch(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {musicBrainzResults.map((recording) => (
+                      <div
+                        key={recording.id}
+                        className="p-3 border rounded cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => selectRecording(recording)}
+                      >
+                        <div className="font-medium">{recording.title}</div>
+                        <div className="text-sm text-muted-foreground">
+                          by {recording.artists.join(', ')}
+                        </div>
+                        {recording.releaseTitle && (
+                          <div className="text-xs text-muted-foreground">
+                            {recording.releaseTitle}
+                            {recording.releaseDate && ` (${recording.releaseDate.split('-')[0]})`}
+                            {recording.label && ` • ${recording.label}`}
+                          </div>
+                        )}
+                        {recording.duration && (
+                          <div className="text-xs text-muted-foreground">
+                            Duration: {recording.duration} minutes
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Separator />
             </div>
           )}
 
-          {/* Rating */}
-          <div className="space-y-2 mb-6">
-            <Label>Your Rating</Label>
-            <div className="flex items-center space-x-1">
-              {renderStars()}
-              <span className="ml-2 text-sm text-muted-foreground">
-                {rating > 0 ? `${rating}/5` : 'No rating'}
-              </span>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Basic Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  {...register('title', { required: 'Title is required' })}
+                  placeholder={type === 'recording' ? 'Symphony No. 9' : 'Berlin Philharmonic Concert'}
+                  className={errors.title ? 'border-red-500' : ''}
+                />
+                {errors.title && (
+                  <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="composer">Composer *</Label>
+                <Input
+                  id="composer"
+                  {...register('composer', { required: 'Composer is required' })}
+                  placeholder="Ludwig van Beethoven"
+                  className={errors.composer ? 'border-red-500' : ''}
+                />
+                {errors.composer && (
+                  <p className="text-red-500 text-sm mt-1">{errors.composer.message}</p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Notes */}
-          <div className="space-y-2 mb-6">
-            <Label htmlFor="notes">Personal Notes</Label>
-            <Textarea
-              id="notes"
-              placeholder="Share your thoughts, feelings, and observations about this performance..."
-              className="min-h-24"
-              {...register('notes')}
-            />
-          </div>
-
-          {/* Tags */}
-          <div className="space-y-2 mb-6">
-            <Label>Tags</Label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                  {tag}
-                  <X
-                    className="h-3 w-3 cursor-pointer hover:text-destructive"
-                    onClick={() => removeTag(tag)}
+            {/* Type-specific fields */}
+            {type === 'recording' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="conductor">Conductor</Label>
+                  <Input
+                    id="conductor"
+                    {...register('conductor')}
+                    placeholder="Leonard Bernstein"
                   />
-                </Badge>
-              ))}
+                </div>
+                <div>
+                  <Label htmlFor="orchestra">Orchestra/Ensemble</Label>
+                  <Input
+                    id="orchestra"
+                    {...register('orchestra')}
+                    placeholder="New York Philharmonic"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="soloists">Soloists</Label>
+                  <Input
+                    id="soloists"
+                    {...register('soloists')}
+                    placeholder="Yo-Yo Ma, Emanuel Ax"
+                  />
+                </div>
+              </div>
+            )}
+
+            {type === 'concert' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="venue">Venue *</Label>
+                    <Input
+                      id="venue"
+                      {...register('venue', { required: type === 'concert' })}
+                      placeholder="Carnegie Hall"
+                      className={errors.venue ? 'border-red-500' : ''}
+                    />
+                    {errors.venue && (
+                      <p className="text-red-500 text-sm mt-1">Venue is required</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="location">Location *</Label>
+                    <Input
+                      id="location"
+                      {...register('location', { required: type === 'concert' })}
+                      placeholder="New York, NY"
+                      className={errors.location ? 'border-red-500' : ''}
+                    />
+                    {errors.location && (
+                      <p className="text-red-500 text-sm mt-1">Location is required</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="concertDate">Concert Date</Label>
+                    <Input
+                      id="concertDate"
+                      type="date"
+                      {...register('concertDate')}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="startTime">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      {...register('startTime')}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="conductor">Conductor</Label>
+                    <Input
+                      id="conductor"
+                      {...register('conductor')}
+                      placeholder="Leonard Bernstein"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="orchestra">Orchestra/Ensemble</Label>
+                    <Input
+                      id="orchestra"
+                      {...register('orchestra')}
+                      placeholder="New York Philharmonic"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="soloists">Soloists</Label>
+                  <Input
+                    id="soloists"
+                    {...register('soloists')}
+                    placeholder="Yo-Yo Ma, Emanuel Ax"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="program">Program</Label>
+                  <Textarea
+                    id="program"
+                    {...register('program')}
+                    placeholder="List the pieces performed in the concert..."
+                    rows={3}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Rating */}
+            <div>
+              <Label htmlFor="rating">Rating</Label>
+              <Select value={watch('rating')?.toString()} onValueChange={(value) => setValue('rating', parseInt(value))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a rating" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <SelectItem key={rating} value={rating.toString()}>
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {Array.from({ length: rating }).map((_, i) => (
+                            <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
+                        <span>{rating} star{rating !== 1 ? 's' : ''}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex gap-2">
-              <Input
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                placeholder="Add a tag..."
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
+
+            {/* Notes */}
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                {...register('notes')}
+                placeholder="Share your thoughts about this performance..."
+                rows={3}
               />
-              <Button type="button" variant="outline" size="icon" onClick={addTag}>
-                <Plus className="h-4 w-4" />
+            </div>
+
+            {/* Tags */}
+            <div>
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input
+                id="tags"
+                {...register('tags')}
+                placeholder="romantic, powerful, emotional"
+              />
+            </div>
+
+            {/* Submit buttons */}
+            <div className="flex gap-2 pt-4">
+              <Button type="submit" disabled={isSubmitting} className="flex-1">
+                {isSubmitting ? 'Saving...' : `Log ${type}`}
+              </Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
               </Button>
             </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
-            <Button 
-              type="submit" 
-              variant="default" 
-              className="flex-1"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : 'Save Entry'}
-            </Button>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
-};
+}
