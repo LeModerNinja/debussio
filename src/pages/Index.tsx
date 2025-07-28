@@ -82,11 +82,11 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-hero"></div>
         </div>
         
-        <div className="content-container relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
-            <span className="block mb-4">CHRONICLE YOUR CHERISHED CONCERTS AND TREASURED RECORDINGS.</span>
-            <span className="block mb-4">DISCOVER EXQUISITE PERFORMANCES IN YOUR VICINITY.</span>
-            <span className="block">CONNECT WITH DISTINGUISHED MUSICIANS AND CULTIVATE ENSEMBLE ARTISTRY.</span>
+        <div className="content-container relative z-10">
+          <h1 className="text-xl md:text-2xl font-bold leading-tight mb-8 text-left">
+            <span className="block">Log your recent concerts or favourite recordings.</span>
+            <span className="block">Find your next concert in your area.</span>
+            <span className="block">Connect with like minded people and play in ensembles.</span>
           </h1>
           
           <p className="text-sm italic opacity-75 mb-12">
