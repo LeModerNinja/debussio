@@ -222,6 +222,4 @@ export async function generateTestData() {
   }
 }
 
-// Make it available globally for easy testing
 console.log('📦 Test data generator loaded');
-(window as any).generateTestData = generateTestData;
