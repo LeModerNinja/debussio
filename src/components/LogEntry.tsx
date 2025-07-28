@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { musicBrainzService, type MusicBrainzRecording } from '@/services/musicBrainzService';
@@ -54,6 +54,8 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecording, setSelectedRecording] = useState<MusicBrainzSearchResult | null>(null);
+  const [suggestions, setSuggestions] = useState<MusicBrainzSearchResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const {
     register,
@@ -68,15 +70,37 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
     },
   });
 
-  // Search MusicBrainz for recordings
-  const searchMusicBrainz = async () => {
-    if (!searchQuery.trim()) return;
-    
-    setSearchLoading(true);
-    try {
-      const results = await musicBrainzService.searchRecordings(searchQuery);
-      
-      const formattedResults: MusicBrainzSearchResult[] = results.recordings?.map(recording => {
+  // Clean up MusicBrainz data by filtering out unwanted results
+  const cleanMusicBrainzResults = (recordings: any[]): MusicBrainzSearchResult[] => {
+    return recordings
+      .filter(recording => {
+        // Filter out results that are clearly not classical music
+        const title = recording.title?.toLowerCase() || '';
+        const artists = recording['artist-credit']?.map((ac: any) => ac.name?.toLowerCase()).join(' ') || '';
+        
+        // Skip if it contains electronic music indicators
+        const electronicKeywords = ['remix', 'mix', 'dj', 'club', 'dance', 'techno', 'house', 'ambient'];
+        const hasElectronicKeywords = electronicKeywords.some(keyword => 
+          title.includes(keyword) || artists.includes(keyword)
+        );
+        
+        // Skip if it's too short (likely not classical)
+        const duration = recording.length;
+        const isTooShort = duration && duration < 30000; // Less than 30 seconds
+        
+        // Skip if it has certain non-classical release types
+        const releases = recording.releases || [];
+        const hasNonClassicalRelease = releases.some((release: any) => {
+          const releaseTitle = release.title?.toLowerCase() || '';
+          return releaseTitle.includes('compilation') || 
+                 releaseTitle.includes('mix') ||
+                 releaseTitle.includes('soundtrack');
+        });
+        
+        return !hasElectronicKeywords && !isTooShort && !hasNonClassicalRelease;
+      })
+      .slice(0, 10) // Limit to top 10 results
+      .map(recording => {
         const extractedInfo = musicBrainzService.extractRecordingInfo(recording);
         return {
           id: extractedInfo.id,
@@ -87,9 +111,52 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
           label: extractedInfo.label,
           duration: extractedInfo.duration,
         };
-      }) || [];
+      });
+  };
+
+  // Debounced search for suggestions
+  const debouncedSearch = useCallback(
+    async (query: string) => {
+      if (!query.trim() || query.length < 3) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
       
-      setMusicBrainzResults(formattedResults);
+      try {
+        const results = await musicBrainzService.searchRecordings(query, undefined, 8);
+        const cleanedResults = cleanMusicBrainzResults(results.recordings || []);
+        setSuggestions(cleanedResults.slice(0, 5)); // Show top 5 suggestions
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Suggestion search error:', error);
+      }
+    },
+    []
+  );
+
+  // Effect for debounced search suggestions
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (type === 'recording') {
+        debouncedSearch(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, debouncedSearch, type]);
+
+  // Search MusicBrainz for recordings
+  const searchMusicBrainz = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setSearchLoading(true);
+    setShowSuggestions(false);
+    try {
+      const results = await musicBrainzService.searchRecordings(searchQuery);
+      const cleanedResults = cleanMusicBrainzResults(results.recordings || []);
+      
+      setMusicBrainzResults(cleanedResults);
       setShowMusicBrainzSearch(true);
     } catch (error) {
       console.error('MusicBrainz search error:', error);
@@ -109,7 +176,9 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
     setValue('title', recording.title);
     setValue('composer', recording.artists[0] || '');
     setValue('orchestra', recording.releaseTitle || '');
+    setSearchQuery(recording.title);
     setShowMusicBrainzSearch(false);
+    setShowSuggestions(false);
     
     toast({
       title: "Recording Selected",
@@ -304,16 +373,43 @@ export function LogEntry({ type, onClose }: LogEntryProps) {
           {type === 'recording' && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="flex-1">
+                <div className="flex-1 relative">
                   <Label htmlFor="search">Search MusicBrainz Database</Label>
                   <div className="flex gap-2 mt-1">
-                    <Input
-                      id="search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search by composer, piece title, or performer..."
-                      onKeyDown={(e) => e.key === 'Enter' && searchMusicBrainz()}
-                    />
+                    <div className="flex-1 relative">
+                      <Input
+                        id="search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Start typing composer, piece title, or performer..."
+                        onKeyDown={(e) => e.key === 'Enter' && searchMusicBrainz()}
+                        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      />
+                      
+                      {/* Search Suggestions Dropdown */}
+                      {showSuggestions && suggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-background border rounded-md shadow-lg max-h-64 overflow-y-auto">
+                          {suggestions.map((suggestion) => (
+                            <div
+                              key={suggestion.id}
+                              className="p-3 hover:bg-muted cursor-pointer border-b border-border/50 last:border-b-0"
+                              onClick={() => selectRecording(suggestion)}
+                            >
+                              <div className="font-medium text-sm">{suggestion.title}</div>
+                              <div className="text-xs text-muted-foreground">
+                                by {suggestion.artists.join(', ')}
+                              </div>
+                              {suggestion.releaseTitle && (
+                                <div className="text-xs text-muted-foreground">
+                                  {suggestion.releaseTitle}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <Button 
                       type="button" 
                       onClick={searchMusicBrainz}
