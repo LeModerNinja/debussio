@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Library from "./pages/Library";
 import Concerts from "./pages/Concerts";
+import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/concerts" element={<Concerts />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />

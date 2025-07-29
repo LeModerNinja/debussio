@@ -69,8 +69,15 @@ export function Navigation() {
                 to="/concerts" 
                 className={`nav-link ${isActivePath('/concerts') ? 'active' : ''}`}
               >
-                <Calendar className="h-4 w-4" />
+                <Search className="h-4 w-4" />
                 <span>Concerts</span>
+              </Link>
+              <Link 
+                to="/calendar" 
+                className={`nav-link ${isActivePath('/calendar') ? 'active' : ''}`}
+              >
+                <Calendar className="h-4 w-4" />
+                <span>Calendar</span>
               </Link>
             </div>
           )}
