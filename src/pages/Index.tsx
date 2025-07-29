@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
-import { LogEntryForm } from '@/components/LogEntryForm';
+import { EnhancedLogEntryForm } from '@/components/EnhancedLogEntryForm';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -152,20 +152,20 @@ const Index = () => {
             {/* Log Recording Dialog */}
             <Dialog open={showLogRecording} onOpenChange={setShowLogRecording}>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <LogEntryForm 
-                  type="recording" 
-                  onSuccess={() => setShowLogRecording(false)} 
-                />
+            <EnhancedLogEntryForm 
+              type="recording" 
+              onSuccess={() => setShowLogRecording(false)} 
+            />
               </DialogContent>
             </Dialog>
 
             {/* Log Concert Dialog */}
             <Dialog open={showLogConcert} onOpenChange={setShowLogConcert}>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <LogEntryForm 
-                  type="concert" 
-                  onSuccess={() => setShowLogConcert(false)} 
-                />
+            <EnhancedLogEntryForm 
+              type="concert" 
+              onSuccess={() => setShowLogConcert(false)} 
+            />
               </DialogContent>
             </Dialog>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
-import { LogEntryForm } from '@/components/LogEntryForm';
+import { EnhancedLogEntryForm } from '@/components/EnhancedLogEntryForm';
 import { EntryList } from '@/components/EntryList';
 import { LibrarySearch, LibrarySearchFilters } from '@/components/LibrarySearch';
 import { Button } from '@/components/ui/button';
@@ -117,7 +117,7 @@ export default function Library() {
         {/* Log Entry Modal */}
         <Dialog open={showLogEntry} onOpenChange={setShowLogEntry}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <LogEntryForm 
+            <EnhancedLogEntryForm 
               type={entryType} 
               onSuccess={() => setShowLogEntry(false)} 
             />
