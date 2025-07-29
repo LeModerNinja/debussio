@@ -320,6 +320,75 @@ export class ConcertService {
   }
 
   /**
+   * Sync concerts from Bandsintown API
+   */
+  static async syncFromBandsintown(options?: { 
+    location?: string; 
+    dateFrom?: string; 
+    dateTo?: string; 
+    artists?: string[];
+    limit?: number;
+  }): Promise<{ success: boolean; syncedCount: number; message: string }> {
+    try {
+      const { data, error } = await supabase.functions.invoke('bandsintown-sync', {
+        body: options || {}
+      });
+
+      if (error) {
+        console.error('Error syncing from Bandsintown:', error);
+        return {
+          success: false,
+          syncedCount: 0,
+          message: `Failed to sync from Bandsintown: ${error.message}`
+        };
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Error calling bandsintown-sync function:', error);
+      return {
+        success: false,
+        syncedCount: 0,
+        message: `Error calling sync function: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Sync concerts from TicketMaster API
+   */
+  static async syncFromTicketMaster(options?: { 
+    location?: string; 
+    dateFrom?: string; 
+    dateTo?: string; 
+    limit?: number;
+  }): Promise<{ success: boolean; syncedCount: number; message: string }> {
+    try {
+      const { data, error } = await supabase.functions.invoke('ticketmaster-sync', {
+        body: options || {}
+      });
+
+      if (error) {
+        console.error('Error syncing from TicketMaster:', error);
+        return {
+          success: false,
+          syncedCount: 0,
+          message: `Failed to sync from TicketMaster: ${error.message}`
+        };
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Error calling ticketmaster-sync function:', error);
+      return {
+        success: false,
+        syncedCount: 0,
+        message: `Error calling sync function: ${error.message}`
+      };
+    }
+  }
+
+  /**
    * Get concert statistics for analytics
    */
   static async getConcertStats(): Promise<{

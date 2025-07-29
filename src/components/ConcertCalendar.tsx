@@ -250,6 +250,94 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
     }
   };
 
+  const syncFromBandsintown = async () => {
+    setLoading(true);
+    
+    try {
+      const startDate = startOfMonth(calendarMonth);
+      const endDate = endOfMonth(addMonths(calendarMonth, 2));
+      
+      // Common classical music artists/orchestras for search
+      const classicalArtists = [
+        'Vienna Philharmonic',
+        'Berlin Philharmonic',
+        'New York Philharmonic',
+        'London Symphony Orchestra',
+        'Boston Symphony Orchestra'
+      ];
+      
+      const result = await ConcertService.syncFromBandsintown({
+        dateFrom: startDate.toISOString().split('T')[0],
+        dateTo: endDate.toISOString().split('T')[0],
+        artists: classicalArtists,
+        location: selectedLocation,
+        limit: 50
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Bandsintown Sync Complete",
+          description: `Successfully synced ${result.syncedCount} concerts from Bandsintown.`,
+        });
+        await fetchConcerts(); // Refresh the concerts list
+      } else {
+        toast({
+          title: "Sync Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing from Bandsintown:', error);
+      toast({
+        title: "Sync Error", 
+        description: "Failed to sync concerts from Bandsintown",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const syncFromTicketMaster = async () => {
+    setLoading(true);
+    
+    try {
+      const startDate = startOfMonth(calendarMonth);
+      const endDate = endOfMonth(addMonths(calendarMonth, 2));
+      
+      const result = await ConcertService.syncFromTicketMaster({
+        dateFrom: startDate.toISOString().split('T')[0],
+        dateTo: endDate.toISOString().split('T')[0],
+        location: selectedLocation,
+        limit: 100
+      });
+      
+      if (result.success) {
+        toast({
+          title: "TicketMaster Sync Complete",
+          description: `Successfully synced ${result.syncedCount} concerts from TicketMaster.`,
+        });
+        await fetchConcerts(); // Refresh the concerts list
+      } else {
+        toast({
+          title: "Sync Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing from TicketMaster:', error);
+      toast({
+        title: "Sync Error",
+        description: "Failed to sync concerts from TicketMaster",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Get concerts for the selected date
   const selectedDateConcerts = selectedDate 
     ? concerts.filter(concert => 
@@ -295,20 +383,37 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                 Select a date to view concerts happening that day
               </CardDescription>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={syncFromBachtrack}
-              disabled={syncingBachtrack}
-              className="gap-2"
-            >
-              {syncingBachtrack ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              Sync Bachtrack
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={syncFromTicketMaster}
+                disabled={loading}
+                className="gap-2"
+              >
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                TicketMaster
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={syncFromBandsintown}
+                disabled={loading}
+                className="gap-2"
+              >
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                Bandsintown
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.generate-concert-tags]
 verify_jwt = false
+
+[functions.bandsintown-sync]
+verify_jwt = false
+
+[functions.ticketmaster-sync]
+verify_jwt = false
