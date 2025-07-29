@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, MapPin, Clock, ExternalLink } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
+import { Heart, MapPin, Clock, ExternalLink, Sparkles, RefreshCw } from 'lucide-react';
+import { format, isSameDay, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { ConcertService } from '@/services/concertService';
 
 interface Concert {
   id: string;
@@ -22,6 +23,7 @@ interface Concert {
   soloists: string | null;
   program: string | null;
   ticket_url: string | null;
+  tags: string[] | null;
 }
 
 interface ConcertCalendarProps {
@@ -37,6 +39,9 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
+  const [generatingTags, setGeneratingTags] = useState<Set<string>>(new Set());
+  const [syncingBachtrack, setSyncingBachtrack] = useState(false);
 
   useEffect(() => {
     fetchConcerts();
@@ -166,6 +171,85 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
     }
   };
 
+  const generateTagsForConcert = async (concertId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to generate AI tags.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGeneratingTags(prev => new Set([...prev, concertId]));
+    
+    try {
+      const tags = await ConcertService.generateConcertTags(concertId);
+      
+      // Update local state
+      setConcerts(prev => prev.map(concert => 
+        concert.id === concertId 
+          ? { ...concert, tags }
+          : concert
+      ));
+      
+      toast({
+        title: "AI Tags Generated",
+        description: `Generated ${tags.length} relevant tags for this concert.`,
+      });
+    } catch (error) {
+      console.error('Error generating tags:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate AI tags. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingTags(prev => {
+        const updated = new Set(prev);
+        updated.delete(concertId);
+        return updated;
+      });
+    }
+  };
+
+  const syncFromBachtrack = async () => {
+    setSyncingBachtrack(true);
+    
+    try {
+      const startDate = startOfMonth(calendarMonth);
+      const endDate = endOfMonth(addMonths(calendarMonth, 2)); // Sync 3 months of data
+      
+      const result = await ConcertService.syncFromBachtrack({
+        location: selectedLocation || undefined,
+        dateFrom: startDate.toISOString().split('T')[0],
+        dateTo: endDate.toISOString().split('T')[0],
+        limit: 100,
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Bachtrack Sync Complete",
+          description: `Successfully synced ${result.syncedCount} concerts from Bachtrack.`,
+        });
+        
+        // Refresh concerts after sync
+        fetchConcerts();
+      } else {
+        throw new Error(result.message || 'Sync failed');
+      }
+    } catch (error) {
+      console.error('Error syncing from Bachtrack:', error);
+      toast({
+        title: "Sync Error",
+        description: "Failed to sync from Bachtrack. Please check API configuration.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingBachtrack(false);
+    }
+  };
+
   // Get concerts for the selected date
   const selectedDateConcerts = selectedDate 
     ? concerts.filter(concert => 
@@ -204,16 +288,36 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
       {/* Calendar */}
       <Card>
         <CardHeader>
-          <CardTitle>Concert Calendar</CardTitle>
-          <CardDescription>
-            Select a date to view concerts happening that day
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Concert Calendar</CardTitle>
+              <CardDescription>
+                Select a date to view concerts happening that day
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={syncFromBachtrack}
+              disabled={syncingBachtrack}
+              className="gap-2"
+            >
+              {syncingBachtrack ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              Sync Bachtrack
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Calendar
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
+            month={calendarMonth}
+            onMonthChange={setCalendarMonth}
             className="rounded-md border w-full"
             modifiers={{
               hasConcerts: concertDates,
@@ -222,13 +326,23 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
               hasConcerts: { 
                 backgroundColor: 'hsl(var(--primary))', 
                 color: 'hsl(var(--primary-foreground))',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                borderRadius: '6px'
               },
             }}
           />
-          <div className="mt-4 text-sm text-muted-foreground">
-            <p>• Dates with concerts are highlighted</p>
-            <p>• Click on a date to see concerts that day</p>
+          <div className="mt-4 space-y-2">
+            <div className="text-sm text-muted-foreground">
+              <p>• Dates with concerts are highlighted</p>
+              <p>• Click on a date to see concerts that day</p>
+              <p>• Use the sync button to fetch latest concerts from Bachtrack</p>
+            </div>
+            {concerts.length > 0 && (
+              <div className="flex items-center gap-2 text-sm">
+                <Badge variant="secondary">{concerts.length} concerts loaded</Badge>
+                <Badge variant="outline">{concertDates.length} dates with concerts</Badge>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -297,16 +411,48 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                   </p>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary">Classical</Badge>
-                  {concert.ticket_url && (
-                    <Button asChild size="sm" variant="outline" className="gap-1">
-                      <a href={concert.ticket_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-3 w-3" />
-                        Tickets
-                      </a>
-                    </Button>
-                  )}
+                {/* Tags and Actions */}
+                <div className="space-y-3">
+                  {/* AI Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {concert.tags && concert.tags.length > 0 ? (
+                      concert.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Badge variant="outline" className="text-xs">Classical</Badge>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => generateTagsForConcert(concert.id)}
+                        disabled={generatingTags.has(concert.id)}
+                        className="gap-1 text-xs"
+                      >
+                        {generatingTags.has(concert.id) ? (
+                          <RefreshCw className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3" />
+                        )}
+                        AI Tags
+                      </Button>
+                    </div>
+                    {concert.ticket_url && (
+                      <Button asChild size="sm" variant="outline" className="gap-1">
+                        <a href={concert.ticket_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-3 w-3" />
+                          Tickets
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

@@ -2,3 +2,9 @@ project_id = "hhwxatbibidxzduodcka"
 
 [functions.musicbrainz-search]
 verify_jwt = false
+
+[functions.bachtrack-sync]
+verify_jwt = false
+
+[functions.generate-concert-tags]
+verify_jwt = false

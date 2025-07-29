@@ -273,13 +273,50 @@ export class ConcertService {
   }
 
   /**
-   * Add AI-generated tags to concerts (placeholder for future implementation)
+   * Generate AI-powered tags for concerts using OpenAI
    */
   static async generateConcertTags(concertId: string): Promise<string[]> {
-    // This would integrate with an AI service to analyze concert details
-    // and generate relevant tags
-    // For now, return placeholder tags
-    return ['Classical', 'Symphony', 'Live Performance'];
+    try {
+      const response = await supabase.functions.invoke('generate-concert-tags', {
+        body: { concertId }
+      });
+
+      if (response.error) {
+        console.error('Error generating concert tags:', response.error);
+        return ['Classical', 'Live Performance']; // Fallback tags
+      }
+
+      return response.data?.tags || ['Classical', 'Live Performance'];
+    } catch (error) {
+      console.error('Error calling generate-concert-tags function:', error);
+      return ['Classical', 'Live Performance'];
+    }
+  }
+
+  /**
+   * Sync concerts from Bachtrack API
+   */
+  static async syncFromBachtrack(options: {
+    location?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    limit?: number;
+  } = {}): Promise<{ success: boolean; syncedCount: number; message: string }> {
+    try {
+      const response = await supabase.functions.invoke('bachtrack-sync', {
+        body: options
+      });
+
+      if (response.error) {
+        console.error('Error syncing from Bachtrack:', response.error);
+        throw new Error(response.error.message || 'Failed to sync from Bachtrack');
+      }
+
+      return response.data || { success: false, syncedCount: 0, message: 'Unknown error' };
+    } catch (error) {
+      console.error('Error calling bachtrack-sync function:', error);
+      throw error;
+    }
   }
 
   /**
