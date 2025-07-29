@@ -410,13 +410,13 @@ export const EnhancedLogEntryForm = ({ type, onSuccess }: EnhancedLogEntryFormPr
       <div className="space-y-4">
         <Label className="text-base font-medium">Piece Category</Label>
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
+          <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 w-full h-auto">
             {Object.entries(pieceCategories).map(([key, category]) => {
               const IconComponent = category.icon;
               return (
-                <TabsTrigger key={key} value={key} className="flex items-center gap-1">
-                  <IconComponent className="h-3 w-3" />
-                  <span className="hidden sm:inline">{category.label}</span>
+                <TabsTrigger key={key} value={key} className="flex items-center gap-1 text-xs px-2 py-2">
+                  <IconComponent className="h-3 w-3 flex-shrink-0" />
+                  <span className="hidden sm:inline truncate">{category.label}</span>
                 </TabsTrigger>
               );
             })}
