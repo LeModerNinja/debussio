@@ -193,9 +193,9 @@ const Index = () => {
             {user ? (
               <>
                 <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
-                  <Link to="/concerts">
+                  <Link to="/calendar">
                     <Calendar className="h-6 w-6 mr-3" />
-                    Discover Concerts
+                    View Calendar
                   </Link>
                 </Button>
                 <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
@@ -208,9 +208,9 @@ const Index = () => {
             ) : (
               <>
                 <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
-                  <Link to="/concerts">
+                  <Link to="/calendar">
                     <Calendar className="h-6 w-6 mr-3" />
-                    Discover Concerts
+                    View Calendar
                   </Link>
                 </Button>
                 <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
@@ -275,7 +275,9 @@ const Index = () => {
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-3xl font-bold text-foreground">Upcoming Concerts</h3>
-            <Button variant="ghost">View Calendar</Button>
+            <Button variant="ghost" asChild>
+              <Link to="/calendar">View Calendar</Link>
+            </Button>
           </div>
           
           <div className="grid md:grid-cols-2 gap-6">
