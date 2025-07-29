@@ -429,7 +429,7 @@ export const EnhancedLogEntryForm = ({ type, onSuccess }: EnhancedLogEntryFormPr
               </p>
 
               {/* Dynamic fields based on category */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Basic info (auto-filled but editable) */}
                 <div className="space-y-2">
                   <Label htmlFor="composer">Composer</Label>
@@ -605,7 +605,7 @@ export const EnhancedLogEntryForm = ({ type, onSuccess }: EnhancedLogEntryFormPr
 
       {/* Recording-specific fields */}
       {type === 'recording' && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="album">Album Title</Label>
             <Input
@@ -630,7 +630,7 @@ export const EnhancedLogEntryForm = ({ type, onSuccess }: EnhancedLogEntryFormPr
       {/* Concert-specific fields */}
       {type === 'concert' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="concertVenue">Venue</Label>
               <Input
