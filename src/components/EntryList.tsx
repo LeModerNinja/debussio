@@ -15,6 +15,9 @@ interface UserEntry {
   entry_type: 'recording' | 'concert';
   entry_date: string;
   rating: number | null;
+  performance_rating: number | null;
+  sound_quality_rating: number | null;
+  interpretation_rating: number | null;
   notes: string | null;
   tags: string[] | null;
   created_at: string;
@@ -445,6 +448,42 @@ export function EntryList({ type, searchFilters = {} }: EntryListProps) {
                 </div>
               )}
             </div>
+
+            {/* Detailed Ratings for Recordings */}
+            {entry.entry_type === 'recording' && (entry.performance_rating || entry.sound_quality_rating || entry.interpretation_rating) && (
+              <div className="border-t border-border/50 pt-4 mt-4">
+                <div className="text-sm font-medium mb-3">Detailed Ratings</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  {entry.performance_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Performance:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.performance_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.sound_quality_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Sound Quality:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.sound_quality_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.interpretation_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Interpretation:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.interpretation_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Additional Info for Recordings */}
             {entry.entry_type === 'recording' && entry.recording?.piece && (

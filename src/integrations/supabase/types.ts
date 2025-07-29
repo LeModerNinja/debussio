@@ -259,9 +259,12 @@ export type Database = {
           entry_date: string
           entry_type: Database["public"]["Enums"]["entry_type"]
           id: string
+          interpretation_rating: number | null
           notes: string | null
+          performance_rating: number | null
           rating: number | null
           recording_id: string | null
+          sound_quality_rating: number | null
           tags: string[] | null
           updated_at: string
           user_id: string
@@ -272,9 +275,12 @@ export type Database = {
           entry_date?: string
           entry_type: Database["public"]["Enums"]["entry_type"]
           id?: string
+          interpretation_rating?: number | null
           notes?: string | null
+          performance_rating?: number | null
           rating?: number | null
           recording_id?: string | null
+          sound_quality_rating?: number | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
@@ -285,9 +291,12 @@ export type Database = {
           entry_date?: string
           entry_type?: Database["public"]["Enums"]["entry_type"]
           id?: string
+          interpretation_rating?: number | null
           notes?: string | null
+          performance_rating?: number | null
           rating?: number | null
           recording_id?: string | null
+          sound_quality_rating?: number | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string

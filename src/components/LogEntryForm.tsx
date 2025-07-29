@@ -20,6 +20,12 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   
+  // Additional rating categories for recordings
+  const [performanceRating, setPerformanceRating] = useState(0);
+  const [soundQualityRating, setSoundQualityRating] = useState(0);
+  const [interpretationRating, setInterpretationRating] = useState(0);
+  const [showAdvancedRatings, setShowAdvancedRatings] = useState(false);
+  
   // Form state for recording
   const [recordingData, setRecordingData] = useState({
     composer: '',
@@ -144,6 +150,9 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
           entry_type: 'recording',
           recording_id: recordingId,
           rating: rating || null,
+          performance_rating: performanceRating || null,
+          sound_quality_rating: soundQualityRating || null,
+          interpretation_rating: interpretationRating || null,
           notes: recordingData.notes.trim() || null
         });
 
@@ -163,6 +172,10 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
         notes: ''
       });
       setRating(0);
+      setPerformanceRating(0);
+      setSoundQualityRating(0);
+      setInterpretationRating(0);
+      setShowAdvancedRatings(false);
       onSuccess?.();
 
     } catch (error: any) {
@@ -297,9 +310,68 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label>Rating</Label>
-          <StarRating rating={rating} onRatingChange={setRating} />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-base font-medium">Overall Rating</Label>
+            <StarRating rating={rating} onRatingChange={setRating} />
+            {rating > 0 && !showAdvancedRatings && (
+              <p className="text-xs text-muted-foreground">
+                Click below to add detailed ratings for this recording
+              </p>
+            )}
+          </div>
+
+          {/* Toggle for additional ratings */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAdvancedRatings(!showAdvancedRatings)}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            {showAdvancedRatings ? 'Hide' : 'Show'} Detailed Ratings
+          </Button>
+
+          {/* Advanced Rating Categories */}
+          {showAdvancedRatings && (
+            <div className="space-y-4 pt-2 border-t border-border/50">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Performance Quality</Label>
+                <StarRating 
+                  rating={performanceRating} 
+                  onRatingChange={setPerformanceRating}
+                  size="sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Technical execution, ensemble coordination, timing
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Sound Quality</Label>
+                <StarRating 
+                  rating={soundQualityRating} 
+                  onRatingChange={setSoundQualityRating}
+                  size="sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Recording clarity, balance, acoustics
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Musical Interpretation</Label>
+                <StarRating 
+                  rating={interpretationRating} 
+                  onRatingChange={setInterpretationRating}
+                  size="sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Artistic vision, emotional expression, style
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
