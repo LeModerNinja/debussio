@@ -369,6 +369,102 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          allow_recommendations: boolean | null
+          auto_play_audio_previews: boolean | null
+          concerts_per_page: number | null
+          created_at: string
+          currency: string | null
+          default_view_mode: string | null
+          email_notifications: boolean | null
+          favorite_artists_alerts: boolean | null
+          favorite_composers: string[] | null
+          favorite_conductors: string[] | null
+          favorite_orchestras: string[] | null
+          id: string
+          include_contemporary: boolean | null
+          include_early_music: boolean | null
+          max_price_range: number | null
+          max_travel_distance: number | null
+          min_price_range: number | null
+          new_concerts_alerts: boolean | null
+          preferred_concert_duration: string | null
+          preferred_concert_types: string[] | null
+          preferred_languages: string[] | null
+          preferred_locations: string[] | null
+          preferred_venues: string[] | null
+          price_drop_alerts: boolean | null
+          profile_visibility: string | null
+          reminder_before_concert: number | null
+          share_concert_attendance: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_recommendations?: boolean | null
+          auto_play_audio_previews?: boolean | null
+          concerts_per_page?: number | null
+          created_at?: string
+          currency?: string | null
+          default_view_mode?: string | null
+          email_notifications?: boolean | null
+          favorite_artists_alerts?: boolean | null
+          favorite_composers?: string[] | null
+          favorite_conductors?: string[] | null
+          favorite_orchestras?: string[] | null
+          id?: string
+          include_contemporary?: boolean | null
+          include_early_music?: boolean | null
+          max_price_range?: number | null
+          max_travel_distance?: number | null
+          min_price_range?: number | null
+          new_concerts_alerts?: boolean | null
+          preferred_concert_duration?: string | null
+          preferred_concert_types?: string[] | null
+          preferred_languages?: string[] | null
+          preferred_locations?: string[] | null
+          preferred_venues?: string[] | null
+          price_drop_alerts?: boolean | null
+          profile_visibility?: string | null
+          reminder_before_concert?: number | null
+          share_concert_attendance?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_recommendations?: boolean | null
+          auto_play_audio_previews?: boolean | null
+          concerts_per_page?: number | null
+          created_at?: string
+          currency?: string | null
+          default_view_mode?: string | null
+          email_notifications?: boolean | null
+          favorite_artists_alerts?: boolean | null
+          favorite_composers?: string[] | null
+          favorite_conductors?: string[] | null
+          favorite_orchestras?: string[] | null
+          id?: string
+          include_contemporary?: boolean | null
+          include_early_music?: boolean | null
+          max_price_range?: number | null
+          max_travel_distance?: number | null
+          min_price_range?: number | null
+          new_concerts_alerts?: boolean | null
+          preferred_concert_duration?: string | null
+          preferred_concert_types?: string[] | null
+          preferred_languages?: string[] | null
+          preferred_locations?: string[] | null
+          preferred_venues?: string[] | null
+          price_drop_alerts?: boolean | null
+          profile_visibility?: string | null
+          reminder_before_concert?: number | null
+          share_concert_attendance?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_rating_preferences: {
         Row: {
           created_at: string
@@ -422,6 +518,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_or_create_user_preferences: {
+        Args: { user_id_param: string }
+        Returns: {
+          allow_recommendations: boolean | null
+          auto_play_audio_previews: boolean | null
+          concerts_per_page: number | null
+          created_at: string
+          currency: string | null
+          default_view_mode: string | null
+          email_notifications: boolean | null
+          favorite_artists_alerts: boolean | null
+          favorite_composers: string[] | null
+          favorite_conductors: string[] | null
+          favorite_orchestras: string[] | null
+          id: string
+          include_contemporary: boolean | null
+          include_early_music: boolean | null
+          max_price_range: number | null
+          max_travel_distance: number | null
+          min_price_range: number | null
+          new_concerts_alerts: boolean | null
+          preferred_concert_duration: string | null
+          preferred_concert_types: string[] | null
+          preferred_languages: string[] | null
+          preferred_locations: string[] | null
+          preferred_venues: string[] | null
+          price_drop_alerts: boolean | null
+          profile_visibility: string | null
+          reminder_before_concert: number | null
+          share_concert_attendance: boolean | null
+          updated_at: string
+          user_id: string
+        }
+      }
       has_role: {
         Args: {
           _user_id: string
