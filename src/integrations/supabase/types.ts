@@ -254,49 +254,61 @@ export type Database = {
       }
       user_entries: {
         Row: {
+          acoustics_rating: number | null
           concert_id: string | null
+          conductor_rating: number | null
           created_at: string
           entry_date: string
           entry_type: Database["public"]["Enums"]["entry_type"]
           id: string
           interpretation_rating: number | null
           notes: string | null
-          performance_rating: number | null
+          orchestra_rating: number | null
+          program_rating: number | null
           rating: number | null
           recording_id: string | null
-          sound_quality_rating: number | null
+          recording_quality_rating: number | null
+          soloist_rating: number | null
           tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          acoustics_rating?: number | null
           concert_id?: string | null
+          conductor_rating?: number | null
           created_at?: string
           entry_date?: string
           entry_type: Database["public"]["Enums"]["entry_type"]
           id?: string
           interpretation_rating?: number | null
           notes?: string | null
-          performance_rating?: number | null
+          orchestra_rating?: number | null
+          program_rating?: number | null
           rating?: number | null
           recording_id?: string | null
-          sound_quality_rating?: number | null
+          recording_quality_rating?: number | null
+          soloist_rating?: number | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          acoustics_rating?: number | null
           concert_id?: string | null
+          conductor_rating?: number | null
           created_at?: string
           entry_date?: string
           entry_type?: Database["public"]["Enums"]["entry_type"]
           id?: string
           interpretation_rating?: number | null
           notes?: string | null
-          performance_rating?: number | null
+          orchestra_rating?: number | null
+          program_rating?: number | null
           rating?: number | null
           recording_id?: string | null
-          sound_quality_rating?: number | null
+          recording_quality_rating?: number | null
+          soloist_rating?: number | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string
@@ -356,6 +368,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_rating_preferences: {
+        Row: {
+          created_at: string
+          default_categories: string[]
+          entry_type: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_categories?: string[]
+          entry_type: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_categories?: string[]
+          entry_type?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

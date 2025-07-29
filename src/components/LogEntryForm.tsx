@@ -20,11 +20,29 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   
-  // Additional rating categories for recordings
-  const [performanceRating, setPerformanceRating] = useState(0);
-  const [soundQualityRating, setSoundQualityRating] = useState(0);
-  const [interpretationRating, setInterpretationRating] = useState(0);
-  const [showAdvancedRatings, setShowAdvancedRatings] = useState(false);
+  // Rating categories and their states
+  const [activeRatingCategories, setActiveRatingCategories] = useState<string[]>([]);
+  const [ratings, setRatings] = useState<{[key: string]: number}>({});
+
+  // Available rating categories for different entry types
+  const ratingCategories = {
+    recording: [
+      { key: 'conductor_rating', label: 'Conductor', description: 'Leadership and musical direction' },
+      { key: 'recording_quality_rating', label: 'Recording Quality', description: 'Sound clarity and production' },
+      { key: 'orchestra_rating', label: 'Orchestra', description: 'Ensemble performance and precision' },
+      { key: 'soloist_rating', label: 'Soloist', description: 'Individual performer excellence' },
+      { key: 'interpretation_rating', label: 'Interpretation', description: 'Artistic vision and expression' },
+      { key: 'acoustics_rating', label: 'Acoustics', description: 'Venue and recording space quality' }
+    ],
+    concert: [
+      { key: 'conductor_rating', label: 'Conductor', description: 'Leadership and musical direction' },
+      { key: 'orchestra_rating', label: 'Orchestra', description: 'Ensemble performance and precision' },
+      { key: 'soloist_rating', label: 'Soloist', description: 'Individual performer excellence' },
+      { key: 'interpretation_rating', label: 'Interpretation', description: 'Artistic vision and expression' },
+      { key: 'acoustics_rating', label: 'Acoustics', description: 'Venue and sound quality' },
+      { key: 'program_rating', label: 'Program', description: 'Selection and variety of pieces' }
+    ]
+  };
   
   // Form state for recording
   const [recordingData, setRecordingData] = useState({
@@ -150,9 +168,12 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
           entry_type: 'recording',
           recording_id: recordingId,
           rating: rating || null,
-          performance_rating: performanceRating || null,
-          sound_quality_rating: soundQualityRating || null,
-          interpretation_rating: interpretationRating || null,
+          conductor_rating: ratings.conductor_rating || null,
+          recording_quality_rating: ratings.recording_quality_rating || null,
+          orchestra_rating: ratings.orchestra_rating || null,
+          soloist_rating: ratings.soloist_rating || null,
+          interpretation_rating: ratings.interpretation_rating || null,
+          acoustics_rating: ratings.acoustics_rating || null,
           notes: recordingData.notes.trim() || null
         });
 
@@ -172,10 +193,8 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
         notes: ''
       });
       setRating(0);
-      setPerformanceRating(0);
-      setSoundQualityRating(0);
-      setInterpretationRating(0);
-      setShowAdvancedRatings(false);
+      setRatings({});
+      setActiveRatingCategories([]);
       onSuccess?.();
 
     } catch (error: any) {
@@ -230,6 +249,12 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
           entry_type: 'concert',
           concert_id: newConcert.id,
           rating: rating || null,
+          conductor_rating: ratings.conductor_rating || null,
+          orchestra_rating: ratings.orchestra_rating || null,
+          soloist_rating: ratings.soloist_rating || null,
+          interpretation_rating: ratings.interpretation_rating || null,
+          acoustics_rating: ratings.acoustics_rating || null,
+          program_rating: ratings.program_rating || null,
           notes: concertData.notes.trim() || null
         });
 
@@ -251,6 +276,8 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
         notes: ''
       });
       setRating(0);
+      setRatings({});
+      setActiveRatingCategories([]);
       onSuccess?.();
 
     } catch (error: any) {
@@ -314,62 +341,64 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
           <div className="space-y-2">
             <Label className="text-base font-medium">Overall Rating</Label>
             <StarRating rating={rating} onRatingChange={setRating} />
-            {rating > 0 && !showAdvancedRatings && (
-              <p className="text-xs text-muted-foreground">
-                Click below to add detailed ratings for this recording
-              </p>
-            )}
           </div>
 
-          {/* Toggle for additional ratings */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAdvancedRatings(!showAdvancedRatings)}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            {showAdvancedRatings ? 'Hide' : 'Show'} Detailed Ratings
-          </Button>
-
-          {/* Advanced Rating Categories */}
-          {showAdvancedRatings && (
-            <div className="space-y-4 pt-2 border-t border-border/50">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Performance Quality</Label>
-                <StarRating 
-                  rating={performanceRating} 
-                  onRatingChange={setPerformanceRating}
+          {/* Rating Category Buttons */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Additional Ratings (Optional)</Label>
+            <div className="flex flex-wrap gap-2">
+              {ratingCategories[type].map((category) => (
+                <Button
+                  key={category.key}
+                  type="button"
+                  variant={activeRatingCategories.includes(category.key) ? "default" : "outline"}
                   size="sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Technical execution, ensemble coordination, timing
-                </p>
-              </div>
+                  onClick={() => {
+                    if (activeRatingCategories.includes(category.key)) {
+                      // Remove category
+                      setActiveRatingCategories(prev => prev.filter(c => c !== category.key));
+                      setRatings(prev => {
+                        const newRatings = { ...prev };
+                        delete newRatings[category.key];
+                        return newRatings;
+                      });
+                    } else {
+                      // Add category
+                      setActiveRatingCategories(prev => [...prev, category.key]);
+                    }
+                  }}
+                  className="text-xs"
+                >
+                  {category.label}
+                </Button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Click to rate specific aspects of this {type}
+            </p>
+          </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Sound Quality</Label>
-                <StarRating 
-                  rating={soundQualityRating} 
-                  onRatingChange={setSoundQualityRating}
-                  size="sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Recording clarity, balance, acoustics
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Musical Interpretation</Label>
-                <StarRating 
-                  rating={interpretationRating} 
-                  onRatingChange={setInterpretationRating}
-                  size="sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Artistic vision, emotional expression, style
-                </p>
-              </div>
+          {/* Active Rating Categories */}
+          {activeRatingCategories.length > 0 && (
+            <div className="space-y-4 pt-4 border-t border-border/50">
+              {activeRatingCategories.map((categoryKey) => {
+                const category = ratingCategories[type].find(c => c.key === categoryKey);
+                if (!category) return null;
+                
+                return (
+                  <div key={categoryKey} className="space-y-2">
+                    <Label className="text-sm font-medium">{category.label}</Label>
+                    <StarRating 
+                      rating={ratings[categoryKey] || 0} 
+                      onRatingChange={(newRating) => setRatings(prev => ({ ...prev, [categoryKey]: newRating }))}
+                      size="sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {category.description}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -469,9 +498,70 @@ export const LogEntryForm = ({ type, onSuccess }: LogEntryFormProps) => {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label>Rating</Label>
-        <StarRating rating={rating} onRatingChange={setRating} />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-base font-medium">Overall Rating</Label>
+          <StarRating rating={rating} onRatingChange={setRating} />
+        </div>
+
+        {/* Rating Category Buttons */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">Additional Ratings (Optional)</Label>
+          <div className="flex flex-wrap gap-2">
+            {ratingCategories[type].map((category) => (
+              <Button
+                key={category.key}
+                type="button"
+                variant={activeRatingCategories.includes(category.key) ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  if (activeRatingCategories.includes(category.key)) {
+                    // Remove category
+                    setActiveRatingCategories(prev => prev.filter(c => c !== category.key));
+                    setRatings(prev => {
+                      const newRatings = { ...prev };
+                      delete newRatings[category.key];
+                      return newRatings;
+                    });
+                  } else {
+                    // Add category
+                    setActiveRatingCategories(prev => [...prev, category.key]);
+                  }
+                }}
+                className="text-xs"
+              >
+                {category.label}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Click to rate specific aspects of this {type}
+          </p>
+        </div>
+
+        {/* Active Rating Categories */}
+        {activeRatingCategories.length > 0 && (
+          <div className="space-y-4 pt-4 border-t border-border/50">
+            {activeRatingCategories.map((categoryKey) => {
+              const category = ratingCategories[type].find(c => c.key === categoryKey);
+              if (!category) return null;
+              
+              return (
+                <div key={categoryKey} className="space-y-2">
+                  <Label className="text-sm font-medium">{category.label}</Label>
+                  <StarRating 
+                    rating={ratings[categoryKey] || 0} 
+                    onRatingChange={(newRating) => setRatings(prev => ({ ...prev, [categoryKey]: newRating }))}
+                    size="sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {category.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">

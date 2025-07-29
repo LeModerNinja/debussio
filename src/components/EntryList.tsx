@@ -15,9 +15,13 @@ interface UserEntry {
   entry_type: 'recording' | 'concert';
   entry_date: string;
   rating: number | null;
-  performance_rating: number | null;
-  sound_quality_rating: number | null;
+  conductor_rating: number | null;
+  recording_quality_rating: number | null;
+  orchestra_rating: number | null;
+  soloist_rating: number | null;
   interpretation_rating: number | null;
+  acoustics_rating: number | null;
+  program_rating: number | null;
   notes: string | null;
   tags: string[] | null;
   created_at: string;
@@ -450,25 +454,43 @@ export function EntryList({ type, searchFilters = {} }: EntryListProps) {
             </div>
 
             {/* Detailed Ratings for Recordings */}
-            {entry.entry_type === 'recording' && (entry.performance_rating || entry.sound_quality_rating || entry.interpretation_rating) && (
+            {entry.entry_type === 'recording' && (entry.conductor_rating || entry.recording_quality_rating || entry.orchestra_rating || entry.soloist_rating || entry.interpretation_rating || entry.acoustics_rating) && (
               <div className="border-t border-border/50 pt-4 mt-4">
                 <div className="text-sm font-medium mb-3">Detailed Ratings</div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  {entry.performance_rating && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                  {entry.conductor_rating && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Performance:</span>
+                      <span className="text-muted-foreground">Conductor:</span>
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{entry.performance_rating}/5</span>
+                        <span className="font-medium">{entry.conductor_rating}/5</span>
                       </div>
                     </div>
                   )}
-                  {entry.sound_quality_rating && (
+                  {entry.recording_quality_rating && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Sound Quality:</span>
+                      <span className="text-muted-foreground">Recording:</span>
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{entry.sound_quality_rating}/5</span>
+                        <span className="font-medium">{entry.recording_quality_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.orchestra_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Orchestra:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.orchestra_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.soloist_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Soloist:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.soloist_rating}/5</span>
                       </div>
                     </div>
                   )}
@@ -478,6 +500,78 @@ export function EntryList({ type, searchFilters = {} }: EntryListProps) {
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                         <span className="font-medium">{entry.interpretation_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.acoustics_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Acoustics:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.acoustics_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Detailed Ratings for Concerts */}
+            {entry.entry_type === 'concert' && (entry.conductor_rating || entry.orchestra_rating || entry.soloist_rating || entry.interpretation_rating || entry.acoustics_rating || entry.program_rating) && (
+              <div className="border-t border-border/50 pt-4 mt-4">
+                <div className="text-sm font-medium mb-3">Detailed Ratings</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                  {entry.conductor_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Conductor:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.conductor_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.orchestra_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Orchestra:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.orchestra_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.soloist_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Soloist:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.soloist_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.interpretation_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Interpretation:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.interpretation_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.acoustics_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Acoustics:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.acoustics_rating}/5</span>
+                      </div>
+                    </div>
+                  )}
+                  {entry.program_rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Program:</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{entry.program_rating}/5</span>
                       </div>
                     </div>
                   )}
