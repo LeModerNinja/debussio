@@ -60,6 +60,29 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## API Integrations
+
+This project integrates with several APIs for concert discovery:
+
+- **Eventbrite API**: Global event discovery and ticketing
+- **TicketMaster Discovery API**: Major venue concerts
+- **Bandsintown API**: Artist-specific events
+- **MusicBrainz API**: Classical music metadata
+- **OpenAI API**: AI-powered concert tagging
+
+### Setting up API Keys
+
+To enable all features, you'll need to configure the following environment variables in your Supabase Edge Functions:
+
+```bash
+EVENTBRITE_TOKEN=your_eventbrite_token
+TICKETMASTER_API_KEY=your_ticketmaster_key
+BANDSINTOWN_APP_ID=your_bandsintown_id
+OPENAI_API_KEY=your_openai_key
+```
+
+Visit `/eventbrite` to test the Eventbrite integration.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/44fa8a40-8512-4999-b86f-e2a5ecd9af71) and click on Share -> Publish.

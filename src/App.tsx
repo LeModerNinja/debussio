@@ -11,6 +11,7 @@ import Library from "./pages/Library";
 import Concerts from "./pages/Concerts";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
+import EventbriteDemo from "./pages/EventbriteDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
                 <Settings />
               </ProtectedRoute>
             } />
+            <Route path="/eventbrite" element={<EventbriteDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
