@@ -355,6 +355,40 @@ export class ConcertService {
   }
 
   /**
+   * Sync concerts from Eventbrite API
+   */
+  static async syncFromEventbrite(options?: { 
+    location?: string; 
+    dateFrom?: string; 
+    dateTo?: string; 
+    limit?: number;
+  }): Promise<{ success: boolean; syncedCount: number; message: string }> {
+    try {
+      const { data, error } = await supabase.functions.invoke('eventbrite-sync', {
+        body: options || {}
+      });
+
+      if (error) {
+        console.error('Error syncing from Eventbrite:', error);
+        return {
+          success: false,
+          syncedCount: 0,
+          message: `Failed to sync from Eventbrite: ${error.message}`
+        };
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Error calling eventbrite-sync function:', error);
+      return {
+        success: false,
+        syncedCount: 0,
+        message: `Error calling sync function: ${error.message}`
+      };
+    }
+  }
+
+  /**
    * Sync concerts from TicketMaster API
    */
   static async syncFromTicketMaster(options?: { 

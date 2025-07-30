@@ -45,6 +45,29 @@ serve(async (req) => {
       limit: 200
     };
 
+    // Sync from Eventbrite
+    try {
+      const eventbriteResponse = await supabase.functions.invoke('eventbrite-sync', {
+        body: syncOptions
+      });
+      
+      if (eventbriteResponse.data?.success) {
+        results.push({
+          source: 'Eventbrite',
+          syncedCount: eventbriteResponse.data.syncedCount,
+          success: true
+        });
+        console.log(`Eventbrite sync: ${eventbriteResponse.data.syncedCount} concerts`);
+      }
+    } catch (error) {
+      console.error('Eventbrite sync failed:', error);
+      results.push({
+        source: 'Eventbrite',
+        success: false,
+        error: error.message
+      });
+    }
+
     // Sync from TicketMaster with enhanced coverage
     try {
       const ticketMasterResponse = await supabase.functions.invoke('ticketmaster-sync', {

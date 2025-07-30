@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.daily-concert-sync]
 verify_jwt = false
+
+[functions.eventbrite-sync]
+verify_jwt = false

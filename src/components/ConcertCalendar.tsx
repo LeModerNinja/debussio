@@ -338,6 +338,45 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
     }
   };
 
+  const syncFromEventbrite = async () => {
+    setLoading(true);
+    
+    try {
+      const startDate = startOfMonth(calendarMonth);
+      const endDate = endOfMonth(addMonths(calendarMonth, 2));
+      
+      const result = await ConcertService.syncFromEventbrite({
+        dateFrom: startDate.toISOString().split('T')[0],
+        dateTo: endDate.toISOString().split('T')[0],
+        location: selectedLocation,
+        limit: 100
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Eventbrite Sync Complete",
+          description: `Successfully synced ${result.syncedCount} concerts from Eventbrite.`,
+        });
+        await fetchConcerts(); // Refresh the concerts list
+      } else {
+        toast({
+          title: "Sync Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing from Eventbrite:', error);
+      toast({
+        title: "Sync Error",
+        description: "Failed to sync concerts from Eventbrite",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Get concerts for the selected date
   const selectedDateConcerts = selectedDate 
     ? concerts.filter(concert => 
@@ -383,7 +422,22 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                 Select a date to view concerts happening that day
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={syncFromEventbrite}
+                disabled={loading}
+                className="gap-2"
+              >
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                Eventbrite
+              </Button>
+
               <Button 
                 variant="outline" 
                 size="sm" 
