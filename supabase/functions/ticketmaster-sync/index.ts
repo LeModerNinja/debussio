@@ -85,15 +85,17 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Build TicketMaster API URL
+    // Build TicketMaster API URL with enhanced search
     const baseUrl = 'https://app.ticketmaster.com/discovery/v2/events.json';
     const params = new URLSearchParams({
       apikey: ticketMasterApiKey,
-      size: limit.toString(),
-      // Search for classical music and orchestral events
+      size: Math.min(limit, 199).toString(), // TicketMaster max is 200
+      // Enhanced search for classical music
       classificationName: 'Music',
-      keyword: 'classical OR orchestra OR symphony OR opera OR chamber OR philharmonic',
-      sort: 'date,asc'
+      keyword: 'classical OR orchestra OR symphony OR opera OR chamber OR philharmonic OR concerto OR quartet OR ensemble OR conservatory OR recital OR piano OR violin OR cello OR conductor OR baroque OR romantic OR contemporary OR chorale OR choir',
+      sort: 'date,asc',
+      // Include multiple markets for broader coverage
+      countryCode: 'US,CA,GB,DE,FR,IT,AU,NL,AT,CH'
     });
 
     // Add location filter if provided

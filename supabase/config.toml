@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.ticketmaster-sync]
 verify_jwt = false
+
+[functions.daily-concert-sync]
+verify_jwt = false
