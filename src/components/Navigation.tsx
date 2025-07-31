@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { Music, User, LogOut, Library, Calendar, Compass, Search, Bell } from 'lucide-react';
+import { Music, User, LogOut, Library, Calendar, Compass, Search, Bell, Users } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export function Navigation() {
@@ -78,6 +78,13 @@ export function Navigation() {
               >
                 <Calendar className="h-4 w-4" />
                 <span>Calendar</span>
+              </Link>
+              <Link 
+                to="/community" 
+                className={`nav-link ${isActivePath('/community') ? 'active' : ''}`}
+              >
+                <Users className="h-4 w-4" />
+                <span>Community</span>
               </Link>
             </div>
           )}

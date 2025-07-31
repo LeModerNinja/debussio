@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Library from "./pages/Library";
 import Concerts from "./pages/Concerts";
 import Calendar from "./pages/Calendar";
+import Community from "./pages/Community";
 import Settings from "./pages/Settings";
 import EventbriteDemo from "./pages/EventbriteDemo";
 import NotFound from "./pages/NotFound";
@@ -33,6 +34,7 @@ const App = () => (
             } />
             <Route path="/concerts" element={<Concerts />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/community" element={<Community />} />
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />
