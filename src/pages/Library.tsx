@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
-import { EnhancedLogEntryForm } from '@/components/EnhancedLogEntryForm';
-import { EntryList } from '@/components/EntryList';
-import { LibrarySearch, LibrarySearchFilters } from '@/components/LibrarySearch';
+import { LogEntryForm } from '@/components/common/LogEntryForm';
+import { EntryCard } from '@/components/common/EntryCard';
+import { SearchForm } from '@/components/common/SearchForm';
+import { useEntries } from '@/hooks/useEntries';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Plus, Music, Calendar, Star, Filter, Grid3X3, List, BarChart3 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Music, Calendar, Star, BarChart3 } from 'lucide-react';
+import type { SearchFilters } from '@/types';
 
 export default function Library() {
   const { user } = useAuth();
   const [showLogEntry, setShowLogEntry] = useState(false);
   const [entryType, setEntryType] = useState<'recording' | 'concert'>('recording');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [searchFilters, setSearchFilters] = useState<LibrarySearchFilters>({});
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+  
+  const { entries: recordings, loading: recordingsLoading } = useEntries('recording', searchFilters);
+  const { entries: concerts, loading: concertsLoading } = useEntries('concert', searchFilters);
+  const { entries: allEntries } = useEntries(undefined, searchFilters);
 
   const handleNewEntry = (type: 'recording' | 'concert') => {
     setEntryType(type);
@@ -117,7 +120,7 @@ export default function Library() {
         {/* Log Entry Modal */}
         <Dialog open={showLogEntry} onOpenChange={setShowLogEntry}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <EnhancedLogEntryForm 
+            <LogEntryForm 
               type={entryType} 
               onSuccess={() => setShowLogEntry(false)} 
             />
@@ -126,44 +129,11 @@ export default function Library() {
 
         {/* Advanced Search - Prominently Placed */}
         <div className="mb-8">
-          <LibrarySearch onSearchChange={setSearchFilters} />
-        </div>
-
-        {/* Controls Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Select defaultValue="recent">
-              <SelectTrigger className="w-40">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Recent</SelectItem>
-                <SelectItem value="rating">Top Rated</SelectItem>
-                <SelectItem value="composer">Composer</SelectItem>
-                <SelectItem value="date">Date Added</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <div className="flex items-center rounded-lg border border-border">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                className="rounded-r-none"
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="rounded-l-none"
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <SearchForm 
+            onFiltersChange={setSearchFilters} 
+            filters={searchFilters}
+            type="library"
+          />
         </div>
 
         {/* Tabbed Content */}
@@ -184,11 +154,43 @@ export default function Library() {
           </TabsList>
 
           <TabsContent value="recordings" className="space-y-6">
-            <EntryList type="recording" searchFilters={searchFilters} />
+            <div className="space-y-4">
+              {recordingsLoading ? (
+                <div>Loading recordings...</div>
+              ) : recordings.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-12">
+                    <Music className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <p className="text-lg font-medium mb-2">No recordings yet</p>
+                    <p className="text-muted-foreground">Start building your library by logging your first recording.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                recordings.map(entry => (
+                  <EntryCard key={entry.id} entry={entry} />
+                ))
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="concerts" className="space-y-6">
-            <EntryList type="concert" searchFilters={searchFilters} />
+            <div className="space-y-4">
+              {concertsLoading ? (
+                <div>Loading concerts...</div>
+              ) : concerts.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-12">
+                    <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <p className="text-lg font-medium mb-2">No concerts yet</p>
+                    <p className="text-muted-foreground">Start building your library by logging your first concert.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                concerts.map(entry => (
+                  <EntryCard key={entry.id} entry={entry} />
+                ))
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="favorites" className="space-y-6">

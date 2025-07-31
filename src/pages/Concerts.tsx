@@ -1,30 +1,19 @@
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/Navigation';
-import { AdvancedConcertSearch, type ConcertFilters } from '@/components/AdvancedConcertSearch';
-import { EnhancedConcertList } from '@/components/EnhancedConcertList';
-import { ConcertFavorites } from '@/components/ConcertFavorites';
-import { ConcertList } from '@/components/ConcertList';
+import { SearchForm } from '@/components/common/SearchForm';
 import { ConcertCalendar } from '@/components/ConcertCalendar';
+import { useConcerts } from '@/hooks/useConcerts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, List, Search, Heart, Grid3X3, LayoutList } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, List, Heart, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { format } from 'date-fns';
+import type { SearchFilters } from '@/types';
 
 export default function Concerts() {
-  const { user } = useAuth();
-  const [filters, setFilters] = useState<ConcertFilters>({
-    searchQuery: '',
-    location: '',
-    dateRange: {},
-    composer: '',
-    orchestra: '',
-    conductor: '',
-    venue: '',
-    priceRange: '',
-    tags: []
-  });
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [filters, setFilters] = useState<SearchFilters>({});
+  const { concerts, favorites, loading, toggleFavorite } = useConcerts(filters);
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,9 +31,10 @@ export default function Concerts() {
 
         {/* Advanced Search and Filters */}
         <div className="mb-8">
-          <AdvancedConcertSearch 
+          <SearchForm 
+            onFiltersChange={setFilters} 
             filters={filters}
-            onFiltersChange={setFilters}
+            type="concerts"
           />
         </div>
 
@@ -66,38 +56,85 @@ export default function Concerts() {
           </TabsList>
 
           <TabsContent value="list" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-semibold">Discover Concerts</h2>
-                <p className="text-muted-foreground">
-                  Browse classical music performances with advanced filtering
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="gap-2"
-                >
-                  <LayoutList className="h-4 w-4" />
-                  List
-                </Button>
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="gap-2"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                  Grid
-                </Button>
-              </div>
+            <div className="space-y-4">
+              {loading ? (
+                <div>Loading concerts...</div>
+              ) : concerts.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-12">
+                    <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <p className="text-lg font-medium mb-2">No concerts found</p>
+                    <p className="text-muted-foreground">Try adjusting your search criteria.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                concerts.map(concert => (
+                  <Card key={concert.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl">{concert.title}</CardTitle>
+                          <CardDescription className="flex items-center gap-4 mt-2">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {concert.venue}, {concert.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {format(new Date(concert.concert_date), 'MMM dd, yyyy')}
+                              {concert.start_time && (
+                                <span className="flex items-center gap-1 ml-2">
+                                  <Clock className="h-4 w-4" />
+                                  {concert.start_time}
+                                </span>
+                              )}
+                            </span>
+                          </CardDescription>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleFavorite(concert.id)}
+                        >
+                          <Heart 
+                            className={`h-4 w-4 ${
+                              favorites.has(concert.id) 
+                                ? 'fill-red-500 text-red-500' 
+                                : 'text-muted-foreground'
+                            }`} 
+                          />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {concert.orchestra && (
+                        <p className="text-sm"><strong>Orchestra:</strong> {concert.orchestra}</p>
+                      )}
+                      {concert.conductor && (
+                        <p className="text-sm"><strong>Conductor:</strong> {concert.conductor}</p>
+                      )}
+                      {concert.tags && (
+                        <div className="flex flex-wrap gap-2">
+                          {concert.tags.map((tag, index) => (
+                            <Badge key={index} variant="outline">{tag}</Badge>
+                          ))}
+                        </div>
+                      )}
+                      {concert.ticket_url && (
+                        <div className="flex justify-end">
+                          <Button asChild size="sm" className="gap-2">
+                            <a href={concert.ticket_url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                              Get Tickets
+                            </a>
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
-            <EnhancedConcertList 
-              filters={filters}
-              viewMode={viewMode}
-            />
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-4">
@@ -117,7 +154,13 @@ export default function Concerts() {
           </TabsContent>
 
           <TabsContent value="favorites" className="space-y-4">
-            <ConcertFavorites />
+            <Card>
+              <CardContent className="text-center py-12">
+                <Heart className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-lg font-medium mb-2">No favorites yet</p>
+                <p className="text-muted-foreground">Save concerts you're interested in</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

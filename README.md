@@ -60,6 +60,17 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Code Organization
+
+The codebase is optimized for token efficiency with:
+
+- **Centralized Types**: All TypeScript interfaces in `src/types/`
+- **Shared Constants**: Common data in `src/constants/`
+- **Reusable Hooks**: Data fetching logic in `src/hooks/`
+- **Common Components**: Shared UI components in `src/components/common/`
+- **Utility Functions**: Helper functions in `src/utils/`
+- **Service Layer**: API interactions in `src/services/`
+
 ## API Integrations
 
 This project integrates with several APIs for concert discovery:
