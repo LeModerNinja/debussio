@@ -6,8 +6,8 @@ import { LogEntryForm } from '@/components/common/LogEntryForm';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
-import { Music, Calendar, Users, Star, BookOpen, Database } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Music, Calendar, Users, Star, BookOpen, Database, Heart, Play } from "lucide-react";
 import { generateTestData } from '@/utils/testDataGenerator';
 import { toast } from "sonner";
 import heroImage from "@/assets/hero-concert-hall.jpg";
@@ -150,20 +150,24 @@ const Index = () => {
             {/* Log Recording Dialog */}
             <Dialog open={showLogRecording} onOpenChange={setShowLogRecording}>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <LogEntryForm 
-              type="recording" 
-              onSuccess={() => setShowLogRecording(false)} 
-            />
+                <DialogTitle>Log Recording</DialogTitle>
+                <DialogDescription>Add a new recording to your music library</DialogDescription>
+                <LogEntryForm 
+                  type="recording" 
+                  onSuccess={() => setShowLogRecording(false)} 
+                />
               </DialogContent>
             </Dialog>
 
             {/* Log Concert Dialog */}
             <Dialog open={showLogConcert} onOpenChange={setShowLogConcert}>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <LogEntryForm 
-              type="concert" 
-              onSuccess={() => setShowLogConcert(false)} 
-            />
+                <DialogTitle>Log Concert</DialogTitle>
+                <DialogDescription>Add a new concert experience to your collection</DialogDescription>
+                <LogEntryForm 
+                  type="concert" 
+                  onSuccess={() => setShowLogConcert(false)} 
+                />
               </DialogContent>
             </Dialog>
 

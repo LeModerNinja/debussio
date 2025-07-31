@@ -55,6 +55,30 @@ export interface UserEntry {
   entry_date: string;
   created_at: string;
   updated_at: string;
+  // Populated via joins
+  recording?: {
+    id: string;
+    orchestra: string | null;
+    conductor: string | null;
+    soloists: string | null;
+    label: string | null;
+    album_title: string | null;
+    release_year: number | null;
+    piece: {
+      id: string;
+      title: string;
+      opus_number: string | null;
+      key_signature: string | null;
+      genre: string | null;
+      duration_minutes: number | null;
+      composer: {
+        id: string;
+        name: string;
+        period: string | null;
+      } | null;
+    } | null;
+  } | null;
+  concert?: Concert | null;
 }
 
 export interface SearchFilters {
