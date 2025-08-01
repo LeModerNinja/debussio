@@ -148,9 +148,9 @@ export default function Community() {
       musician.instrument.toLowerCase().includes(searchTerm.toLowerCase()) ||
       musician.looking_for.toLowerCase().includes(searchTerm.toLowerCase())
     ) &&
-    (locationFilter === '' || musician.location.includes(locationFilter)) &&
-    (instrumentFilter === '' || musician.instrument === instrumentFilter) &&
-    (skillFilter === '' || musician.skill_level === skillFilter);
+    (locationFilter === '' || locationFilter === 'all' || musician.location.includes(locationFilter)) &&
+    (instrumentFilter === '' || instrumentFilter === 'all' || musician.instrument === instrumentFilter) &&
+    (skillFilter === '' || skillFilter === 'all' || musician.skill_level === skillFilter);
   });
 
   const getInitials = (name: string) => {
@@ -247,7 +247,7 @@ export default function Community() {
                           <SelectValue placeholder="Any location" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Any location</SelectItem>
+                          <SelectItem value="all">Any location</SelectItem>
                           <SelectItem value="Manhattan">Manhattan</SelectItem>
                           <SelectItem value="Brooklyn">Brooklyn</SelectItem>
                           <SelectItem value="Queens">Queens</SelectItem>
@@ -263,7 +263,7 @@ export default function Community() {
                           <SelectValue placeholder="Any instrument" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Any instrument</SelectItem>
+                          <SelectItem value="all">Any instrument</SelectItem>
                           <SelectItem value="Violin">Violin</SelectItem>
                           <SelectItem value="Viola">Viola</SelectItem>
                           <SelectItem value="Cello">Cello</SelectItem>
@@ -281,7 +281,7 @@ export default function Community() {
                           <SelectValue placeholder="Any level" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Any level</SelectItem>
+                          <SelectItem value="all">Any level</SelectItem>
                           <SelectItem value="Professional">Professional</SelectItem>
                           <SelectItem value="Advanced Amateur">Advanced Amateur</SelectItem>
                           <SelectItem value="Intermediate">Intermediate</SelectItem>
