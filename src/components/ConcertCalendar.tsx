@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Heart, MapPin, Clock, ExternalLink, Sparkles, RefreshCw } from 'lucide-react';
 import { format, isSameDay, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { ConcertService } from '@/services/concertService';
+import { EventbriteService } from '@/services/eventbriteService';
 
 interface Concert {
   id: string;
@@ -356,7 +357,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
       if (result.success) {
         toast({
           title: "Eventbrite Sync Complete",
-          description: `Successfully synced ${result.syncedCount} events. Found ${result.totalFound} total, filtered ${result.filteredCount} classical events.`,
+          description: result.message || `Successfully synced events from Eventbrite.`,
         });
         await fetchConcerts(); // Refresh the concerts list
       } else {
