@@ -339,23 +339,24 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
   };
 
   const syncFromEventbrite = async () => {
-    setLoading(true);
+    if (loading) return; // Prevent multiple simultaneous syncs
     
+    setLoading(true);
     try {
       const startDate = startOfMonth(calendarMonth);
       const endDate = endOfMonth(addMonths(calendarMonth, 2));
       
-      const result = await ConcertService.syncFromEventbrite({
+      const result = await EventbriteService.syncEvents({
         dateFrom: startDate.toISOString().split('T')[0],
         dateTo: endDate.toISOString().split('T')[0],
         location: selectedLocation,
-        limit: 100
+        limit: 50
       });
       
       if (result.success) {
         toast({
           title: "Eventbrite Sync Complete",
-          description: `Successfully synced ${result.syncedCount} concerts from Eventbrite.`,
+          description: `Successfully synced ${result.syncedCount} events. Found ${result.totalFound} total, filtered ${result.filteredCount} classical events.`,
         });
         await fetchConcerts(); // Refresh the concerts list
       } else {
@@ -369,7 +370,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
       console.error('Error syncing from Eventbrite:', error);
       toast({
         title: "Sync Error",
-        description: "Failed to sync concerts from Eventbrite",
+        description: error.message || "Failed to sync concerts from Eventbrite",
         variant: "destructive",
       });
     } finally {

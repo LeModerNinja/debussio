@@ -1,9 +1,55 @@
+import { useState, useEffect } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { EventbriteIntegration } from '@/components/EventbriteIntegration';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Zap, Globe, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Zap, Globe, Users, ExternalLink, TrendingUp } from 'lucide-react';
+import { EventbriteService } from '@/services/eventbriteService';
+import { useToast } from '@/hooks/use-toast';
 
 export default function EventbriteDemo() {
+  const [quickStats, setQuickStats] = useState<any>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadQuickStats();
+  }, []);
+
+  const loadQuickStats = async () => {
+    try {
+      const stats = await EventbriteService.getSyncStats();
+      setQuickStats(stats);
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
+
+  const quickSync = async () => {
+    try {
+      toast({ title: "Quick Sync", description: "Starting quick sync for New York area..." });
+      
+      const result = await EventbriteService.searchClassicalEvents({
+        location: 'New York',
+        limit: 25
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Quick Sync Complete",
+          description: `Found ${result.syncedCount} new events in New York area.`,
+        });
+        loadQuickStats(); // Refresh stats
+      }
+    } catch (error) {
+      toast({
+        title: "Sync Error",
+        description: "Failed to perform quick sync. Check API configuration.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -24,6 +70,20 @@ export default function EventbriteDemo() {
           </div>
           
           {/* Features Overview */}
+          {quickStats && (
+            <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span className="font-medium">Quick Stats:</span>
+                  <Badge variant="secondary">{quickStats.totalEventbriteEvents} total events</Badge>
+                  <Badge variant="outline">{quickStats.upcomingEvents} upcoming</Badge>
+                </div>
+                <Button onClick={quickSync} size="sm" variant="outline">Quick Sync NYC</Button>
+              </div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="glass-card">
               <CardContent className="p-4">
@@ -81,6 +141,21 @@ export default function EventbriteDemo() {
         <EventbriteIntegration />
         
         {/* Additional Information */}
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader>
+            <CardTitle className="text-green-800">Getting Started</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ol className="list-decimal list-inside space-y-2 text-sm text-green-700">
+              <li>Get your Eventbrite API token from <a href="https://www.eventbrite.com/platform/api" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Eventbrite Developer Portal</a></li>
+              <li>Configure the <code>EVENTBRITE_TOKEN</code> environment variable in Supabase Edge Functions</li>
+              <li>Click "Test API" to verify your configuration</li>
+              <li>Use "Sync Events" to fetch classical music events</li>
+              <li>Events will appear in your Calendar and Concerts pages</li>
+            </ol>
+          </CardContent>
+        </Card>
+        
         <Card className="mt-8">
           <CardHeader>
             <CardTitle>About Eventbrite Integration</CardTitle>
@@ -98,6 +173,7 @@ export default function EventbriteDemo() {
                   <li>• Opera and vocal performances</li>
                   <li>• Music festivals and special events</li>
                   <li>• Educational concerts and masterclasses</li>
+                  <li>• Community and amateur performances</li>
                 </ul>
               </div>
               
@@ -107,6 +183,7 @@ export default function EventbriteDemo() {
                   <li>• Keyword-based classical music detection</li>
                   <li>• Venue and organizer reputation scoring</li>
                   <li>• Duplicate event prevention</li>
+                  <li>• Enhanced content filtering</li>
                   <li>• Location-based relevance</li>
                   <li>• Price and accessibility information</li>
                 </ul>
@@ -120,6 +197,13 @@ export default function EventbriteDemo() {
                 No personal data is collected, and all event data is used solely to 
                 enhance your classical music discovery experience. Events are 
                 automatically updated and outdated events are removed.
+              </p>
+            </div>
+            
+            <div className="pt-4 border-t">
+              <h4 className="font-semibold mb-2">API Rate Limits</h4>
+              <p className="text-sm text-muted-foreground">
+                Eventbrite allows 1000 API calls per hour. Our sync is optimized to stay within these limits while maximizing event discovery.
               </p>
             </div>
           </CardContent>
