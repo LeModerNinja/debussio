@@ -16,7 +16,7 @@ export const EventbriteIntegration: React.FC = () => {
       });
       
       if (result.success) {
-        toast.success(result.message || 'Successfully synced classical music events from Eventbrite');
+        toast.success(`${result.message}. Synced ${result.syncedCount} events.`);
       } else {
         toast.error(result.message || 'Failed to sync events');
       }

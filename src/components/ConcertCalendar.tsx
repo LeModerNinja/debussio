@@ -357,7 +357,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
       if (result.success) {
         toast({
           title: "Eventbrite Sync Complete",
-          description: result.message || `Successfully synced events from Eventbrite.`,
+          description: `${result.message}. Synced ${result.syncedCount} classical music events.`,
         });
         await fetchConcerts(); // Refresh the concerts list
       } else {
