@@ -13,6 +13,7 @@ import Calendar from "./pages/Calendar";
 import Community from "./pages/Community";
 import Settings from "./pages/Settings";
 import EventbriteDemo from "./pages/EventbriteDemo";
+import Discover from "./pages/Discover";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/concerts" element={<Concerts />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/discover" element={<Discover />} />
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />
