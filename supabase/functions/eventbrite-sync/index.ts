@@ -65,7 +65,6 @@ Deno.serve(async (req) => {
     const params = new URLSearchParams({
       'expand': 'venue,category,organizer,ticket_availability',
       'sort_by': 'date',
-      'categories': '103', // Music category
     })
     
     if (location) {

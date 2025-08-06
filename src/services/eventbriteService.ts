@@ -136,7 +136,7 @@ export class EventbriteService {
         .eq('source', 'eventbrite')
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       return {
         totalEventbriteEvents: totalResult.count || 0,
