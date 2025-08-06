@@ -234,7 +234,7 @@ const Discover = () => {
         {/* Search Section */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Search className="h-5 w-5" />
               Search Classical Music
             </CardTitle>
@@ -243,20 +243,20 @@ const Discover = () => {
             <div className="space-y-4">
               <Tabs value={searchType} onValueChange={(value) => setSearchType(value as 'works' | 'recordings')}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="works">Musical Works</TabsTrigger>
-                  <TabsTrigger value="recordings">Recordings</TabsTrigger>
+                  <TabsTrigger value="works" className="text-sm">Musical Works</TabsTrigger>
+                  <TabsTrigger value="recordings" className="text-sm">Recordings</TabsTrigger>
                 </TabsList>
               </Tabs>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
-                  placeholder={searchType === 'works' ? 'Search for symphonies, concertos, sonatas...' : 'Search for recordings, albums, performances...'}
+                  placeholder={searchType === 'works' ? 'Search symphonies, concertos...' : 'Search recordings, albums...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={handleKeyPress}
                   className="flex-1"
                 />
-                <Button onClick={handleSearch} disabled={loading}>
+                <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto">
                   {loading ? 'Searching...' : 'Search'}
                 </Button>
               </div>

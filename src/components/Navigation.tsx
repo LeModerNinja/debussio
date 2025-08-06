@@ -8,13 +8,16 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { Music, User, LogOut, Library, Calendar, Compass, Search, Bell, Users } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Music, User, LogOut, Library, Calendar, Compass, Search, Bell, Users, Menu } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 
 export function Navigation() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,7 +51,7 @@ export function Navigation() {
             </div>
           </Link>
 
-          {/* Main Navigation */}
+          {/* Main Navigation - Desktop */}
           {user && (
             <div className="hidden md:flex items-center space-x-1">
               <Link 
@@ -89,17 +92,72 @@ export function Navigation() {
             </div>
           )}
 
+          {/* Mobile Navigation Menu */}
+          {user && (
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <div className="flex flex-col space-y-4 mt-8">
+                  <Link 
+                    to="/library" 
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted ${isActivePath('/library') ? 'bg-muted' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Library className="h-5 w-5" />
+                    <span className="text-lg">Library</span>
+                  </Link>
+                  <Link 
+                    to="/discover" 
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted ${isActivePath('/discover') ? 'bg-muted' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Compass className="h-5 w-5" />
+                    <span className="text-lg">Discover</span>
+                  </Link>
+                  <Link 
+                    to="/concerts" 
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted ${isActivePath('/concerts') ? 'bg-muted' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Search className="h-5 w-5" />
+                    <span className="text-lg">Concerts</span>
+                  </Link>
+                  <Link 
+                    to="/calendar" 
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted ${isActivePath('/calendar') ? 'bg-muted' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Calendar className="h-5 w-5" />
+                    <span className="text-lg">Calendar</span>
+                  </Link>
+                  <Link 
+                    to="/community" 
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-muted ${isActivePath('/community') ? 'bg-muted' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Users className="h-5 w-5" />
+                    <span className="text-lg">Community</span>
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
+
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {user ? (
               <>
-                {/* Search Button */}
-                <Button variant="ghost" size="icon" className="hover-lift">
+                {/* Search Button - Hidden on small screens */}
+                <Button variant="ghost" size="icon" className="hover-lift hidden sm:flex">
                   <Search className="h-4 w-4" />
                 </Button>
 
-                {/* Notifications */}
-                <Button variant="ghost" size="icon" className="hover-lift relative">
+                {/* Notifications - Hidden on small screens */}
+                <Button variant="ghost" size="icon" className="hover-lift relative hidden sm:flex">
                   <Bell className="h-4 w-4" />
                   <span className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full border-2 border-background"></span>
                 </Button>
@@ -149,11 +207,11 @@ export function Navigation() {
                 </DropdownMenu>
               </>
             ) : (
-              <div className="flex items-center space-x-3">
-                <Button variant="ghost" asChild>
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" asChild className="hidden sm:flex">
                   <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button className="btn-primary-gradient" asChild>
+                <Button className="btn-primary-gradient text-sm px-3" asChild>
                   <Link to="/auth">Get Started</Link>
                 </Button>
               </div>

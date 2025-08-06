@@ -87,12 +87,12 @@ const Index = () => {
             <div className="flex justify-center">
               {/* Combined Log Button */}
               <div className="relative overflow-hidden rounded-xl shadow-elegant">
-                <div className="flex">
-                  {/* Left Side - Log Recording (Brown) */}
+                <div className="flex flex-col sm:flex-row">
+                  {/* Top/Left Side - Log Recording (Brown) */}
                   <Button 
                     variant="ghost" 
                     size="lg" 
-                    className="h-20 px-12 text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-r-none border-r border-amber-600" 
+                    className="h-20 px-8 sm:px-12 text-lg sm:text-xl bg-amber-800 text-white hover:bg-amber-700 rounded-b-none sm:rounded-b-lg sm:rounded-r-none border-b sm:border-b-0 sm:border-r border-amber-600" 
                     onClick={() => {
                       if (!user) {
                         // Redirect to auth if not logged in
@@ -102,14 +102,14 @@ const Index = () => {
                       setShowLogRecording(true);
                     }}
                   >
-                    <Music className="h-7 w-7 mr-3" />
+                    <Music className="h-6 w-6 sm:h-7 sm:w-7 mr-2 sm:mr-3" />
                     Log Recording
                   </Button>
-                  {/* Right Side - Log Concert (White) */}
+                  {/* Bottom/Right Side - Log Concert (White) */}
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="h-20 px-12 text-xl bg-white text-foreground hover:bg-gray-50 rounded-l-none border-l border-gray-200" 
+                    className="h-20 px-8 sm:px-12 text-lg sm:text-xl bg-white text-foreground hover:bg-gray-50 rounded-t-none sm:rounded-t-lg sm:rounded-l-none border-t sm:border-t-0 sm:border-l border-gray-200" 
                     onClick={() => {
                       if (!user) {
                         // Redirect to auth if not logged in  
@@ -119,7 +119,7 @@ const Index = () => {
                       setShowLogConcert(true);
                     }}
                   >
-                    <Calendar className="h-7 w-7 mr-3" />
+                    <Calendar className="h-6 w-6 sm:h-7 sm:w-7 mr-2 sm:mr-3" />
                     Log Concert
                   </Button>
                 </div>
@@ -152,40 +152,40 @@ const Index = () => {
 
           </div>
 
-          {/* Main Action Buttons - More Prominent */}
-          <div className="flex flex-wrap justify-center gap-6 mt-16">
-            {user ? (
-              <>
-                <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
-                  <Link to="/calendar">
-                    <Calendar className="h-6 w-6 mr-3" />
-                    View Calendar
-                  </Link>
-                </Button>
-                <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
-                  <Link to="/library">
-                    <Users className="h-6 w-6 mr-3" />
-                    My Library
-                  </Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="hero" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
-                  <Link to="/calendar">
-                    <Calendar className="h-6 w-6 mr-3" />
-                    View Calendar
-                  </Link>
-                </Button>
-                <Button variant="elegant" size="lg" className="h-16 px-10 text-lg hover-lift shadow-elegant" asChild>
-                  <Link to="/auth">
-                    <Users className="h-6 w-6 mr-3" />
-                    Join Community
-                  </Link>
-                </Button>
-              </>
-            )}
-          </div>
+            {/* Main Action Buttons - More Prominent */}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-16">
+              {user ? (
+                <>
+                  <Button variant="hero" size="lg" className="h-16 px-6 sm:px-10 text-base sm:text-lg hover-lift shadow-elegant" asChild>
+                    <Link to="/calendar">
+                      <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
+                      View Calendar
+                    </Link>
+                  </Button>
+                  <Button variant="elegant" size="lg" className="h-16 px-6 sm:px-10 text-base sm:text-lg hover-lift shadow-elegant" asChild>
+                    <Link to="/library">
+                      <Users className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
+                      My Library
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="hero" size="lg" className="h-16 px-6 sm:px-10 text-base sm:text-lg hover-lift shadow-elegant" asChild>
+                    <Link to="/calendar">
+                      <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
+                      View Calendar
+                    </Link>
+                  </Button>
+                  <Button variant="elegant" size="lg" className="h-16 px-6 sm:px-10 text-base sm:text-lg hover-lift shadow-elegant" asChild>
+                    <Link to="/auth">
+                      <Users className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
+                      Join Community
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
         </div>
       </section>
 
