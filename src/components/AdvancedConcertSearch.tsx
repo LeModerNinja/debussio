@@ -9,17 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
 
-export interface ConcertFilters {
-  searchQuery?: string;
-  location?: string;
-  composer?: string;
-  orchestra?: string;
-  conductor?: string;
-  venue?: string;
-  dateRange?: { from?: Date; to?: Date };
-  priceRange?: string;
-  tags?: string[];
-}
+import type { ConcertFilters } from '@/types';
 
 interface AdvancedConcertSearchProps {
   filters: ConcertFilters;

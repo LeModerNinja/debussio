@@ -1,25 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { ConcertFilters } from '@/components/AdvancedConcertSearch';
-
-export interface Concert {
-  id: string;
-  title: string;
-  venue: string;
-  location: string;
-  concert_date: string;
-  start_time: string | null;
-  orchestra: string | null;
-  conductor: string | null;
-  soloists: string | null;
-  program: string | null;
-  ticket_url: string | null;
-  price_range: string | null;
-  tags: string[] | null;
-  source: string | null;
-  external_event_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import type { ConcertFilters, Concert } from '@/types';
 
 export interface ConcertSearchResult {
   concerts: Concert[];
