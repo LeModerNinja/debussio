@@ -19,6 +19,19 @@ export interface Concert {
   updated_at: string;
 }
 
+// Concert-specific search filters used by services and components
+export interface ConcertFilters {
+  searchQuery?: string;
+  location?: string;
+  composer?: string;
+  orchestra?: string;
+  conductor?: string;
+  venue?: string;
+  dateRange?: { from?: Date; to?: Date };
+  priceRange?: string;
+  tags?: string[];
+}
+
 export interface Recording {
   id: string;
   piece_id: string;

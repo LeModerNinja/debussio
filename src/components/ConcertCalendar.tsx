@@ -11,21 +11,9 @@ import { Heart, MapPin, Clock, ExternalLink, Sparkles, RefreshCw } from 'lucide-
 import { format, isSameDay, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { ConcertService } from '@/services/concertService';
 import { EventbriteService } from '@/services/eventbriteService';
+import { DatabaseUtils } from '@/utils/database';
 
-interface Concert {
-  id: string;
-  title: string;
-  venue: string;
-  location: string;
-  concert_date: string;
-  start_time: string | null;
-  orchestra: string | null;
-  conductor: string | null;
-  soloists: string | null;
-  program: string | null;
-  ticket_url: string | null;
-  tags: string[] | null;
-}
+import type { Concert, ConcertFilters } from '@/types';
 
 interface ConcertCalendarProps {
   searchQuery: string;
@@ -37,12 +25,15 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
   const { user } = useAuth();
   const { toast } = useToast();
   const [concerts, setConcerts] = useState<Concert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isFetchingConcerts, setIsFetchingConcerts] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const [generatingTags, setGeneratingTags] = useState<Set<string>>(new Set());
   const [syncingBachtrack, setSyncingBachtrack] = useState(false);
+  const [syncingEventbrite, setSyncingEventbrite] = useState(false);
+  const [syncingTicketMaster, setSyncingTicketMaster] = useState(false);
+  const [syncingBandsintown, setSyncingBandsintown] = useState(false);
 
   useEffect(() => {
     fetchConcerts();
@@ -53,33 +44,13 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
 
   const fetchConcerts = async () => {
     try {
-      let query = supabase
-        .from('concerts')
-        .select('*')
-        .order('concert_date', { ascending: true });
-
-      // Apply search filter
-      if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%,orchestra.ilike.%${searchQuery}%,conductor.ilike.%${searchQuery}%,soloists.ilike.%${searchQuery}%,program.ilike.%${searchQuery}%`);
-      }
-
-      // Apply location filter
-      if (selectedLocation) {
-        query = query.ilike('location', `%${selectedLocation}%`);
-      }
-
-      // Apply date range filter
-      if (dateRange.from) {
-        query = query.gte('concert_date', dateRange.from.toISOString().split('T')[0]);
-      }
-      if (dateRange.to) {
-        query = query.lte('concert_date', dateRange.to.toISOString().split('T')[0]);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setConcerts(data || []);
+      const filters: ConcertFilters = {
+        searchQuery,
+        location: selectedLocation,
+        dateRange: { from: dateRange.from, to: dateRange.to }
+      };
+      const { concerts } = await ConcertService.searchConcerts(filters, 1, 500);
+      setConcerts(concerts);
     } catch (error) {
       console.error('Error fetching concerts:', error);
       toast({
@@ -88,7 +59,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsFetchingConcerts(false);
     }
   };
 
@@ -122,46 +93,22 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
     }
 
     try {
-      const isFavorite = favorites.has(concertId);
-      
-      if (isFavorite) {
-        // Remove from favorites
-        const { error } = await supabase
-          .from('user_favorites')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('concert_id', concertId);
+      const wasAdded = await DatabaseUtils.toggleFavorite(user.id, concertId, 'concert');
 
-        if (error) throw error;
-        
-        setFavorites(prev => {
-          const newFavorites = new Set(prev);
-          newFavorites.delete(concertId);
-          return newFavorites;
-        });
-        
-        toast({
-          title: "Removed from favorites",
-          description: "Concert removed from your favorites.",
-        });
-      } else {
-        // Add to favorites
-        const { error } = await supabase
-          .from('user_favorites')
-          .insert({
-            user_id: user.id,
-            concert_id: concertId,
-          });
+      setFavorites(prev => {
+        const updated = new Set(prev);
+        if (wasAdded) {
+          updated.add(concertId);
+        } else {
+          updated.delete(concertId);
+        }
+        return updated;
+      });
 
-        if (error) throw error;
-        
-        setFavorites(prev => new Set([...prev, concertId]));
-        
-        toast({
-          title: "Added to favorites",
-          description: "Concert saved to your favorites.",
-        });
-      }
+      toast({
+        title: wasAdded ? "Added to favorites" : "Removed from favorites",
+        description: wasAdded ? "Concert saved to your favorites." : "Concert removed from your favorites.",
+      });
     } catch (error) {
       console.error('Error toggling favorite:', error);
       toast({
@@ -252,7 +199,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
   };
 
   const syncFromBandsintown = async () => {
-    setLoading(true);
+    setSyncingBandsintown(true);
     
     try {
       const startDate = startOfMonth(calendarMonth);
@@ -296,12 +243,12 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setSyncingBandsintown(false);
     }
   };
 
   const syncFromTicketMaster = async () => {
-    setLoading(true);
+    setSyncingTicketMaster(true);
     
     try {
       const startDate = startOfMonth(calendarMonth);
@@ -335,14 +282,14 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setSyncingTicketMaster(false);
     }
   };
 
   const syncFromEventbrite = async () => {
-    if (loading) return; // Prevent multiple simultaneous syncs
+    if (syncingEventbrite) return; // Prevent multiple simultaneous syncs
     
-    setLoading(true);
+    setSyncingEventbrite(true);
     try {
       const startDate = startOfMonth(calendarMonth);
       const endDate = endOfMonth(addMonths(calendarMonth, 2));
@@ -375,7 +322,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setSyncingEventbrite(false);
     }
   };
 
@@ -389,7 +336,7 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
   // Get dates that have concerts for the calendar
   const concertDates = concerts.map(concert => new Date(concert.concert_date));
 
-  if (loading) {
+  if (isFetchingConcerts) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -429,10 +376,10 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                 variant="outline" 
                 size="sm" 
                 onClick={syncFromEventbrite}
-                disabled={loading}
+                disabled={syncingEventbrite}
                 className="gap-2"
               >
-                {loading ? (
+                {syncingEventbrite ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="h-4 w-4" />
@@ -444,10 +391,10 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                 variant="outline" 
                 size="sm" 
                 onClick={syncFromTicketMaster}
-                disabled={loading}
+                disabled={syncingTicketMaster}
                 className="gap-2"
               >
-                {loading ? (
+                {syncingTicketMaster ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="h-4 w-4" />
@@ -459,10 +406,10 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                 variant="outline" 
                 size="sm" 
                 onClick={syncFromBandsintown}
-                disabled={loading}
+                disabled={syncingBandsintown}
                 className="gap-2"
               >
-                {loading ? (
+                {syncingBandsintown ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="h-4 w-4" />
