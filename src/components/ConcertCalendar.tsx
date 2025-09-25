@@ -545,18 +545,19 @@ export function ConcertCalendar({ searchQuery, selectedLocation, dateRange }: Co
                     </div>
                   </div>
                   <Button
-                    variant="ghost"
+                    variant={favorites.has(concert.id) ? "default" : "outline"}
                     size="sm"
                     onClick={() => toggleFavorite(concert.id)}
-                    className="shrink-0"
+                    className="shrink-0 gap-1"
                   >
                     <Heart 
-                      className={`h-4 w-4 ${
+                      className={`h-3 w-3 ${
                         favorites.has(concert.id) 
-                          ? 'fill-red-500 text-red-500' 
-                          : 'text-muted-foreground'
+                          ? 'fill-current' 
+                          : ''
                       }`} 
                     />
+                    {favorites.has(concert.id) ? 'Saved' : 'Save'}
                   </Button>
                 </div>
 

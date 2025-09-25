@@ -92,17 +92,19 @@ export default function Concerts() {
                           </CardDescription>
                         </div>
                         <Button
-                          variant="ghost"
+                          variant={favorites.has(concert.id) ? "default" : "outline"}
                           size="sm"
                           onClick={() => toggleFavorite(concert.id)}
+                          className="gap-2"
                         >
                           <Heart 
                             className={`h-4 w-4 ${
                               favorites.has(concert.id) 
-                                ? 'fill-red-500 text-red-500' 
-                                : 'text-muted-foreground'
+                                ? 'fill-current' 
+                                : ''
                             }`} 
                           />
+                          {favorites.has(concert.id) ? 'Saved' : 'Save'}
                         </Button>
                       </div>
                     </CardHeader>
